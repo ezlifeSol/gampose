@@ -42,6 +42,8 @@ processing input events, and managing audio.
 
 Add the following to your `settings.gradle` or `settings.gradle.kts` file:
 
+#### Groovy DSL (settings.gradle)
+
 ```gradle
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -52,13 +54,35 @@ dependencyResolutionManagement {
 }
 ```
 
+#### Kotlin DSL (settings.gradle.kts)
+
+```kotlin
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    mavenCentral()
+    maven { url = "https://jitpack.io" }
+  }
+}
+```
+
 ### Step 2. Add Dependency
 
 Add the following to your `build.gradle` file:
 
+#### Groovy DSL (build.gradle)
+
 ```gradle
 dependencies {
     implementation 'com.github.ezlifeSol:gampose:1.0.0-alpha'
+}
+```
+
+#### Kotlin DSL (build.gradle.kts)
+
+```kotlin
+dependencies {
+  implementation("com.github.ezlifeSol:gampose:1.0.0-alpha")
 }
 ```
 
