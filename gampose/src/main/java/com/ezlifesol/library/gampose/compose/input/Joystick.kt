@@ -20,6 +20,18 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+/**
+ * Creates a joystick control with a base and a movable stick.
+ *
+ * @param modifier Modifier to apply to the Box containing the joystick.
+ * @param position The position of the joystick in the game space.
+ * @param sprite The drawable resource for the joystick base.
+ * @param size The size of the joystick base.
+ * @param stickSprite The drawable resource for the joystick stick.
+ * @param stickSize The size of the joystick stick.
+ * @param anchor The anchor point of the joystick to determine how it's placed based on its position.
+ * @param onDragging Callback invoked with normalized joystick direction when dragging.
+ */
 @Keep
 @Composable
 fun Joystick(
@@ -33,12 +45,15 @@ fun Joystick(
     onDragging: (GameVector) -> Unit = {}
 ) {
     Box(modifier = modifier) {
+        // Draw the joystick base
         GameSprite(
             sprite = sprite,
             size = size,
             position = position,
             anchor = anchor
         )
+
+        // Calculate the initial position of the stick and finger
         val intOffset = anchor.getIntOffset(size.width, size.height, position.x.roundToInt(), position.y.roundToInt())
         var stickPosition by remember {
             mutableStateOf(GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2)))
@@ -51,6 +66,7 @@ fun Joystick(
         val centerX = intOffset.x + (size.width / 2)
         val centerY = intOffset.y + (size.height / 2)
 
+        // Draw the joystick stick
         GameSprite(
             sprite = stickSprite,
             size = stickSize,
@@ -58,13 +74,14 @@ fun Joystick(
             anchor = GameAnchor.Center,
             onDragging = detectDragging(
                 onDrag = { _, dragAmount ->
-
+                    // Update the finger and stick position based on drag
                     val newFingerX = fingerPosition.x + dragAmount.x
                     val newFingerY = fingerPosition.y + dragAmount.y
                     val distance = sqrt((newFingerX - centerX).pow(2) + (newFingerY - centerY).pow(2))
 
                     fingerPosition = GameVector(newFingerX, newFingerY)
 
+                    // Constrain the stick within the radius of the base
                     if (distance > radius) {
                         val ratio = radius / distance
                         stickPosition = GameVector(centerX + (newFingerX - centerX) * ratio, centerY + (newFingerY - centerY) * ratio)
@@ -72,6 +89,7 @@ fun Joystick(
                         stickPosition = fingerPosition
                     }
 
+                    // Calculate the normalized joystick direction
                     val normalizedDistance = distance / radius
                     val normalizedX = (stickPosition.x - centerX) / radius
                     val normalizedY = (stickPosition.y - centerY) / radius
@@ -79,6 +97,7 @@ fun Joystick(
                     onDragging(GameVector(normalizedX, normalizedY))
                 },
                 onDragEnd = {
+                    // Reset the stick position and notify of zero movement
                     stickPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
                     fingerPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
                     onDragging(GameVector.zero)

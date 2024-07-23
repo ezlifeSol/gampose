@@ -19,6 +19,15 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import com.ezlifesol.library.gampose.unit.GameSize
 import kotlin.math.roundToInt
 
+/**
+ * GameSpace is a Composable function that provides a game loop and rendering environment.
+ * It handles game updates and drawing operations within a Composable context.
+ *
+ * @param modifier Modifier to apply to the Box container.
+ * @param onStart Composable lambda function to be called when the game starts.
+ * @param onDraw Lambda function to perform custom drawing on the GameSpace.
+ * @param onUpdate Composable lambda function to update game logic each frame.
+ */
 @Keep
 @Composable
 fun GameSpace(
@@ -27,6 +36,7 @@ fun GameSpace(
     onDraw: (DrawScope.() -> Unit) = {},
     onUpdate: @Composable GameScope.() -> Unit,
 ) {
+    // Create a GameScope instance to hold game-related data.
     val gameScope = remember {
         object : GameScope {
             override var gameTime: Float = 0f
@@ -35,19 +45,21 @@ fun GameSpace(
         }
     }
 
+    // State variables for tracking time and game frame information.
     var prevDeltaMillisTime by remember { mutableLongStateOf(0L) }
     var deltaMillisTime by remember { mutableLongStateOf(0L) }
     var gameTime by remember { mutableLongStateOf(0L) }
-
     var gameFrame by remember { mutableIntStateOf(0) }
     var gameSize by remember { mutableStateOf(GameSize(0f, 0f)) }
     var isStarted by remember { mutableStateOf(false) }
     var isLoadedScreen by remember { mutableStateOf(false) }
 
+    // Container for the game space, with layout and size calculations.
     Box(modifier = modifier.onGloballyPositioned {
         gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
         isLoadedScreen = true
     }) {
+        // Main game loop that calculates time and frame rate.
         LaunchedEffect(Unit) {
             while (true) {
                 withFrameMillis { frameTimeMillis ->
@@ -63,6 +75,7 @@ fun GameSpace(
             }
         }
 
+        // Update game state and trigger game events.
         if (isLoadedScreen) {
             gameScope.gameSize = gameSize
             gameScope.gameTime = gameTime / 1000f
@@ -77,6 +90,9 @@ fun GameSpace(
     }
 }
 
+/**
+ * GameScope provides access to game-related data within the game loop.
+ */
 interface GameScope {
     var gameTime: Float
     var gameSize: GameSize

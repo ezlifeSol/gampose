@@ -32,9 +32,31 @@ import com.ezlifesol.library.gampose.unit.GameVector
 import com.ezlifesol.library.gampose.unit.toDp
 import kotlin.math.roundToInt
 
+/**
+ * GameObject is a Composable function that represents a game object with position, size, scale, rotation, and color.
+ * It supports collision detection, click and drag interactions, and custom drawing content.
+ *
+ * @param modifier Modifier to apply to the Box container.
+ * @param size Size of the game object.
+ * @param position Position of the game object.
+ * @param anchor Anchor point for positioning the game object.
+ * @param scale Scale factor for the game object.
+ * @param angle Rotation angle of the game object.
+ * @param color Background color of the game object.
+ * @param collider Optional Collider for collision detection.
+ * @param otherColliders List of other Colliders for collision detection.
+ * @param onColliding Listener for collision events.
+ * @param onClick Lambda function for click events.
+ * @param onTap Lambda function for tap events.
+ * @param onDoubleTap Lambda function for double tap events.
+ * @param onLongPress Lambda function for long press events.
+ * @param onPress Lambda function for press events.
+ * @param onDragging Listener for dragging events.
+ * @param content Composable content to be drawn inside the game object.
+ */
 @Keep
 @Composable
-fun GamePosition(
+fun GameObject(
     modifier: Modifier = Modifier,
     size: GameSize,
     position: GameVector = GameVector.zero,
@@ -53,10 +75,9 @@ fun GamePosition(
     onDragging: OnDraggingListener? = null,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
-    val collidingWith = remember {
-        mutableStateListOf<Collider<out Shape>>()
-    }
+    val collidingWith = remember { mutableStateListOf<Collider<out Shape>>() }
 
+    // Collision detection
     collider?.let {
         otherColliders?.forEach { other ->
             val isColliding = collider.overlaps(other)
@@ -113,9 +134,13 @@ fun GamePosition(
             }
             .apply {
                 onClick?.let {
-                    clickable(onClick = it, indication = null, interactionSource = remember { MutableInteractionSource() })
+                    clickable(
+                        onClick = it,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() })
                 }
-            }) {
+            }
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -124,6 +149,9 @@ fun GamePosition(
     }
 }
 
+/**
+ * Extension function to calculate IntOffset based on GameAnchor.
+ */
 fun GameAnchor.getIntOffset(width: Float, height: Float, offsetX: Int, offsetY: Int): IntOffset {
     return when (this) {
         GameAnchor.TopLeft -> IntOffset(offsetX, offsetY)
