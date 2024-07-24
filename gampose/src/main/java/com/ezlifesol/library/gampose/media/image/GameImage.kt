@@ -2,6 +2,7 @@ package com.ezlifesol.library.gampose.media.image
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import androidx.annotation.Keep
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import java.io.InputStream
@@ -12,6 +13,7 @@ import java.io.InputStream
  * This class provides a mechanism to cache images loaded from asset files,
  * helping to optimize performance by avoiding redundant image decoding and loading.
  */
+@Keep
 object GameImage {
     // A mutable map that stores cached images with their asset paths as keys.
     private val cache = mutableMapOf<String, ImageBitmap>()

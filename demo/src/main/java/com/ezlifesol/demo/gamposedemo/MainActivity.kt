@@ -1,5 +1,6 @@
 package com.ezlifesol.demo.gamposedemo
 
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,8 +11,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.ezlifesol.demo.gamposedemo.game.DinoScreen
-import com.ezlifesol.library.gampose.audio.GameAudio
+import com.ezlifesol.library.gampose.media.audio.GameAudio
 
+@SuppressLint("SourceLockedOrientationActivity")
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

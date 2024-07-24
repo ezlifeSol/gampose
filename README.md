@@ -10,19 +10,19 @@ processing input events, and managing audio.
 
 ### GameSpace
 
-- **GameSpace**: A composable function that provides a game loop and rendering environment. It handles
-  game updates and drawing operations within a Composable context. The `GameSpace` composable integrates
-  seamlessly with Jetpack Compose and provides a framework for creating game loops, handling updates, and
-  rendering custom drawings. It also supports lifecycle management to pause the game when the app goes to
-  the background.
+- **GameSpace**: A composable function that provides a game loop and rendering environment. It
+  handles game updates and drawing operations within a Composable context. The `GameSpace`composable
+  integrates seamlessly with Jetpack Compose and provides a framework for creating game loops,
+  handling updates, and rendering custom drawings. It also supports lifecycle management to pause
+  the game when the app goes to the background.
 
 ### Game Objects and Sprites
 
 - **GameObject**: A fundamental component in the game environment that includes properties like
   size, position, rotation angle, and color. It also supports input events such as dragging and
   clicking.
-- **GameSprite**: A specialized `GameObject` used to display images from drawable resources. It
-  makes it easy to integrate images into the game.
+- **GameSprite**: A specialized `GameObject` used to display images. It supports displaying images
+  from drawable resources or asset paths.
 
 ### Colliders and Shapes
 
@@ -35,6 +35,12 @@ processing input events, and managing audio.
 
 - **GameAudio**: Provides functionality for playing background music and sound effects in the game.
   It supports playing audio from resource files and managing sound effects.
+
+### Image Management
+
+- **GameImage**: A singleton object responsible for caching and retrieving images from asset paths.
+  It improves performance by avoiding redundant loading of images and stores them in memory for
+  quick access.
 
 ### Input Handling
 
@@ -71,7 +77,7 @@ dependencyResolutionManagement {
   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
   repositories {
     mavenCentral()
-    maven { url = "https://jitpack.io" }
+    maven(url = "https://jitpack.io")
   }
 }
 ```
@@ -84,7 +90,7 @@ Add the following to your `build.gradle` file:
 
 ```gradle
 dependencies {
-    implementation 'com.github.ezlifeSol:gampose:1.0.0'
+    implementation 'com.github.ezlifeSol:gampose:1.1.2'
 }
 ```
 
@@ -92,7 +98,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-  implementation("com.github.ezlifeSol:gampose:1.0.0")
+  implementation("com.github.ezlifeSol:gampose:1.1.2")
 }
 ```
 
@@ -117,8 +123,20 @@ GameObject(
 #### GameSprite
 
 ```kotlin
+// Using drawable resource
 GameSprite(
-    sprite = R.drawable.example_sprite,
+  resourceId = R.drawable.example_sprite,
+  size = GameSize(100f, 100f),
+  position = GameVector(50f, 50f),
+  anchor = GameAnchor.TopLeft,
+  scale = GameScale(1f, 1f),
+  angle = 0f,
+  onClick = { /* Handle click */ }
+)
+
+// Using asset path
+GameSprite(
+  assetPath = "images/example_sprite.png",
     size = GameSize(100f, 100f),
     position = GameVector(50f, 50f),
     anchor = GameAnchor.TopLeft,
@@ -135,7 +153,7 @@ GameSpace(
     modifier = Modifier.fillMaxSize()
 ) {
     // Dino properties
-    val dinoSprite = R.drawable.ic_dino_jump
+  val dinoSprite = "dino/dino_jump.webp"
     val dinoSize = GameSize(200f, 200f)
     val dinoAnchor = GameAnchor.BottomLeft
     val dinoPosition by remember {
@@ -143,13 +161,14 @@ GameSpace(
     }
     // Draw dino sprite
     GameSprite(
-        sprite = dinoSprite,
+      assetPath = dinoSprite,
         size = dinoSize,
         position = dinoPosition,
         anchor = dinoAnchor,
     )
 }
 ```
+
 <img src="https://github.com/ezlifeSol/gampose/blob/main/dino_example.jpg" alt="Dino Standing Demo" width="500"/>
 
 #### Joystick
@@ -194,11 +213,14 @@ collision detection, input events (clicks and dragging), and custom drawing.
 ### `GameSprite`
 
 `GameSprite` is a specialized version of `GameObject` for displaying images. It uses drawable
-resources to render sprites and inherits all properties and functionality from `GameObject`.
+resources or asset paths to render sprites and inherits all properties and functionality
+from `GameObject`.
 
 **Parameters:**
 
-- `sprite`: The drawable resource ID of the sprite image.
+- `resourceId`: The drawable resource ID of the sprite image.
+- `assetPath`: The path to the asset image. If `resourceId` is not provided, this will be used to
+  load the image.
 - `size`: The size of the sprite.
 - `position`: The position of the sprite.
 - `anchor`: The anchor point for positioning.
