@@ -15,9 +15,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="landscape"
-            android:theme="@style/Theme.GamposeDemo"
-            tools:ignore="DiscouragedApi">
+            android:theme="@style/Theme.GamposeDemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

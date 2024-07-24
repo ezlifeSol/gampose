@@ -36,7 +36,7 @@ object GameAudio {
             mediaPlayer = MediaPlayer.create(context, resId).apply {
                 isLooping = loop
                 setVolume(volume, volume)
-                start()
+                startMusic()
             }
         }
     }
@@ -45,11 +45,25 @@ object GameAudio {
      * Stops and releases the currently playing music.
      */
     fun stopMusic() {
-        mediaPlayer?.apply {
-            stop()
-            release()
+        CoroutineScope(Dispatchers.IO).launch {
+            mediaPlayer?.apply {
+                stop()
+                release()
+            }
+            mediaPlayer = null
         }
-        mediaPlayer = null
+    }
+
+    fun pauseMusic() {
+        CoroutineScope(Dispatchers.IO).launch {
+            mediaPlayer?.pause()
+        }
+    }
+
+    fun startMusic() {
+        CoroutineScope(Dispatchers.IO).launch {
+            mediaPlayer?.start()
+        }
     }
 
     /**
