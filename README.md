@@ -4,16 +4,17 @@ Gampose is an Android library designed for developing games and graphical applic
 Compose. It provides a range of tools and components for managing game objects, handling collisions,
 processing input events, and managing audio.
 
-![Dino Jumping Over Cactus](https://github.com/ezlifeSol/gampose/blob/main/dino_jump.gif)
+<img src="https://github.com/ezlifeSol/gampose/blob/main/dino_jump.gif" alt="Dino Jumping Over Cactus" width="700"/>
 
 ## Features
 
-### Colliders and Shapes
+### GameSpace
 
-- **Collider**: Objects that can handle collisions and check for intersections between game objects.
-  For example, `CircleCollider` and `RectangleCollider` handle collision detection for circles and
-  rectangles respectively.
-- **Shape**: Geometric objects such as `Circle` and `Rectangle` that colliders can encompass.
+- **GameSpace**: A composable function that provides a game loop and rendering environment. It handles
+  game updates and drawing operations within a Composable context. The `GameSpace` composable integrates
+  seamlessly with Jetpack Compose and provides a framework for creating game loops, handling updates, and
+  rendering custom drawings. It also supports lifecycle management to pause the game when the app goes to
+  the background.
 
 ### Game Objects and Sprites
 
@@ -22,6 +23,13 @@ processing input events, and managing audio.
   clicking.
 - **GameSprite**: A specialized `GameObject` used to display images from drawable resources. It
   makes it easy to integrate images into the game.
+
+### Colliders and Shapes
+
+- **Collider**: Objects that can handle collisions and check for intersections between game objects.
+  For example, `CircleCollider` and `RectangleCollider` handle collision detection for circles and
+  rectangles respectively.
+- **Shape**: Geometric objects such as `Circle` and `Rectangle` that colliders can encompass.
 
 ### Audio System
 
@@ -119,6 +127,31 @@ GameSprite(
     onClick = { /* Handle click */ }
 )
 ```
+
+#### GameSpace
+
+```kotlin
+GameSpace(
+    modifier = Modifier.fillMaxSize()
+) {
+    // Dino properties
+    val dinoSprite = R.drawable.ic_dino_jump
+    val dinoSize = GameSize(200f, 200f)
+    val dinoAnchor = GameAnchor.BottomLeft
+    val dinoPosition by remember {
+        mutableStateOf(GameVector(300f, gameSize.height))
+    }
+    // Draw dino sprite
+    GameSprite(
+        sprite = dinoSprite,
+        size = dinoSize,
+        position = dinoPosition,
+        anchor = dinoAnchor,
+    )
+}
+```
+##### GameSpace Demo
+<img src="https://github.com/ezlifeSol/gampose/blob/main/dino_example.jpg" alt="Dino Standing Demo" width="500"/>
 
 #### Joystick
 
