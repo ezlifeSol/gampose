@@ -74,11 +74,11 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencyResolutionManagement {
-  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-  repositories {
-    mavenCentral()
-    maven(url = "https://jitpack.io")
-  }
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven(url = "https://jitpack.io")
+    }
 }
 ```
 
@@ -90,7 +90,7 @@ Add the following to your `build.gradle` file:
 
 ```gradle
 dependencies {
-    implementation 'com.github.ezlifeSol:gampose:1.1.2'
+    implementation 'com.github.ezlifeSol:gampose:1.1.4'
 }
 ```
 
@@ -98,7 +98,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-  implementation("com.github.ezlifeSol:gampose:1.1.2")
+    implementation("com.github.ezlifeSol:gampose:1.1.4")
 }
 ```
 
@@ -125,18 +125,18 @@ GameObject(
 ```kotlin
 // Using drawable resource
 GameSprite(
-  resourceId = R.drawable.example_sprite,
-  size = GameSize(100f, 100f),
-  position = GameVector(50f, 50f),
-  anchor = GameAnchor.TopLeft,
-  scale = GameScale(1f, 1f),
-  angle = 0f,
-  onClick = { /* Handle click */ }
+    resourceId = R.drawable.example_sprite,
+    size = GameSize(100f, 100f),
+    position = GameVector(50f, 50f),
+    anchor = GameAnchor.TopLeft,
+    scale = GameScale(1f, 1f),
+    angle = 0f,
+    onClick = { /* Handle click */ }
 )
 
 // Using asset path
 GameSprite(
-  assetPath = "images/example_sprite.png",
+    assetPath = "images/example_sprite.png",
     size = GameSize(100f, 100f),
     position = GameVector(50f, 50f),
     anchor = GameAnchor.TopLeft,
@@ -153,7 +153,7 @@ GameSpace(
     modifier = Modifier.fillMaxSize()
 ) {
     // Dino properties
-  val dinoSprite = "dino/dino_jump.webp"
+    val dinoSprite = "dino/dino_jump.webp"
     val dinoSize = GameSize(200f, 200f)
     val dinoAnchor = GameAnchor.BottomLeft
     val dinoPosition by remember {
@@ -161,7 +161,7 @@ GameSpace(
     }
     // Draw dino sprite
     GameSprite(
-      assetPath = dinoSprite,
+        assetPath = dinoSprite,
         size = dinoSize,
         position = dinoPosition,
         anchor = dinoAnchor,
@@ -263,7 +263,10 @@ music playback using MediaPlayer and sound effects using SoundPool.
 - `playMusic(context: Context, @RawRes resId: Int, loop: Boolean = false, volume: Float = 1f)`:Plays
   background music from a raw resource. Parameters include context, resource ID, loop flag, and
   volume level.
-- `startMusic()`: Starts the currently loaded music if it was paused.
+- `startMusic()`: Starts
+
+the currently loaded music if it was paused.
+
 - `pauseMusic()`: Pauses the currently playing music.
 - `stopMusic()`: Stops and releases the currently playing music.
 - `registerSounds
@@ -281,11 +284,10 @@ when loading images from assets in Jetpack Compose.
 
 **Methods:**
 
-- `getBitmap(context: Context, filePath: String): Bitmap?`: Loads a bitmap from the
-  specified asset file path.
-- `splitSprite(context: Context, assetPath: String, col: Int, row: Int): List<Bitmap>`: Splits a
-  sprite bitmap into
-  multiple smaller bitmaps based on the specified number of rows and columns.
+- `getBitmap(context: Context, assetPath: String): ImageBitmap`: Retrieves an ImageBitmap from the
+  cache or loads it from assets if not already cached.
+- `splitSprite(context: Context, assetPath: String, col: Int, row: Int): List<ImageBitmap>`: Splits
+  an image from assets into a grid of smaller images and caches the resulting images.
 
 ## Contact
 
