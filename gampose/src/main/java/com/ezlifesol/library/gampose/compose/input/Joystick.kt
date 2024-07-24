@@ -5,6 +5,7 @@ import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,6 +63,16 @@ fun Joystick(
             mutableStateOf(GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2)))
         }
 
+        var isDragging by remember {
+            mutableStateOf(false)
+        }
+        var normalizedX by remember {
+            mutableFloatStateOf(0f)
+        }
+        var normalizedY by remember {
+            mutableFloatStateOf(0f)
+        }
+
         val radius = size.width / 2
         val centerX = intOffset.x + (size.width / 2)
         val centerY = intOffset.y + (size.height / 2)
@@ -90,19 +101,26 @@ fun Joystick(
                     }
 
                     // Calculate the normalized joystick direction
-                    val normalizedDistance = distance / radius
-                    val normalizedX = (stickPosition.x - centerX) / radius
-                    val normalizedY = (stickPosition.y - centerY) / radius
+                    normalizedX = (stickPosition.x - centerX) / radius
+                    normalizedY = (stickPosition.y - centerY) / radius
 
-                    onDragging(GameVector(normalizedX, normalizedY))
+                    isDragging = true
                 },
                 onDragEnd = {
                     // Reset the stick position and notify of zero movement
                     stickPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
                     fingerPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
-                    onDragging(GameVector.zero)
+                    normalizedX = 0f
+                    normalizedY = 0f
+                    isDragging = false
                 }
             )
         )
+
+        if (isDragging) {
+            onDragging(GameVector(normalizedX, normalizedY))
+        } else {
+            onDragging(GameVector.zero)
+        }
     }
 }

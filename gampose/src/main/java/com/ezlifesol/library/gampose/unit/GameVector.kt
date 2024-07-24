@@ -54,4 +54,32 @@ open class GameVector(
      * @return A new GameVector instance representing the result of the division.
      */
     operator fun div(other: GameVector) = GameVector(x / other.x, y / other.y)
+
+    /**
+     * Adds a scalar value to both components of the GameVector.
+     * @param amount A float value to add to both x and y components.
+     * @return A new GameVector instance representing the result of the addition.
+     */
+    operator fun plus(amount: Float) = GameVector(x + amount, y + amount)
+
+    /**
+     * Subtracts a scalar value from both components of the GameVector.
+     * @param amount A float value to subtract from both x and y components.
+     * @return A new GameVector instance representing the result of the subtraction.
+     */
+    operator fun minus(amount: Float) = GameVector(x - amount, y - amount)
+
+    /**
+     * Multiplies both components of the GameVector by a scalar value.
+     * @param amount A float value to multiply with both x and y components.
+     * @return A new GameVector instance representing the result of the multiplication.
+     */
+    operator fun times(amount: Float) = GameVector(x * amount, y * amount)
+
+    /**
+     * Divides both components of the GameVector by a scalar value.
+     * @param amount A float value to divide both x and y components.
+     * @return A new GameVector instance representing the result of the division.
+     */
+    operator fun div(amount: Float) = GameVector(x / amount, y / amount)
 }
