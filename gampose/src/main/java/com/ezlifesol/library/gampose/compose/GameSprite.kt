@@ -14,7 +14,7 @@ import com.ezlifesol.library.gampose.collision.OnCollidingListener
 import com.ezlifesol.library.gampose.collision.collider.Collider
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.input.OnDraggingListener
-import com.ezlifesol.library.gampose.media.image.GameImage
+import com.ezlifesol.library.gampose.media.image.ImageManager
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameScale
 import com.ezlifesol.library.gampose.unit.GameSize
@@ -134,7 +134,7 @@ fun GameSprite(
     onDragging: OnDraggingListener? = null,
 ) {
     val context = LocalContext.current
-    val imageBitmap = GameImage.getBitmap(context, assetPath)
+    val imageBitmap = ImageManager.getBitmap(context, assetPath)
 
     // Use the GameObject function to create and manage the sprite with the specified properties and events.
     GameObject(

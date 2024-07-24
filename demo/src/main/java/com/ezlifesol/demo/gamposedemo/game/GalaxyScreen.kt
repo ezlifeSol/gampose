@@ -21,7 +21,7 @@ import com.ezlifesol.library.gampose.compose.GameSpace
 import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.compose.input.Joystick
 import com.ezlifesol.library.gampose.log.debugLog
-import com.ezlifesol.library.gampose.media.audio.GameAudio
+import com.ezlifesol.library.gampose.media.audio.AudioManager
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameSize
 import com.ezlifesol.library.gampose.unit.GameVector
@@ -98,7 +98,7 @@ fun GalaxyScreen() {
                             }
 
                             bulletInfo.position.y = -1000f
-                            GameAudio.playSound(R.raw.enemy_exp)
+                            AudioManager.playSound(R.raw.enemy_exp)
                         }
                     }
                 )
@@ -107,7 +107,7 @@ fun GalaxyScreen() {
 
         bulletInfos.removeIf { it.position.y < 0f }.apply {
             if (this) {
-                GameAudio.playSound(R.raw.enemy_hit)
+                AudioManager.playSound(R.raw.enemy_hit)
             }
         }
 
@@ -178,7 +178,7 @@ fun GalaxyScreen() {
                     bulletColliders.add(bulletCollider)
                     bulletInfos.add(GameObjectInfo(bulletPosition, bulletCollider))
 
-                    GameAudio.playSound(R.raw.player_shot)
+                    AudioManager.playSound(R.raw.player_shot)
                     nextBullet = gameTime + bulletRate
                 }
             }

@@ -33,14 +33,14 @@ processing input events, and managing audio.
 
 ### Audio System
 
-- **GameAudio**: Provides functionality for playing background music and sound effects in the game.
-  It supports playing audio from resource files and managing sound effects.
+- **AudioManager**: Provides functionality for playing background music and sound effects in the
+  game. It supports playing audio from resource files and managing sound effects.
 
 ### Image Management
 
-- **GameImage**: A singleton object responsible for caching and retrieving images from asset paths.
-  It improves performance by avoiding redundant loading of images and stores them in memory for
-  quick access.
+- **ImageManager**: A singleton object responsible for caching and retrieving images from asset
+  paths. It improves performance by avoiding redundant loading of images and stores them in memory
+  for quick access.
 
 ### Input Handling
 
@@ -252,6 +252,40 @@ interactive joystick controls with drag events.
 - `stickSize`: The size of the joystick stick.
 - `anchor`: The anchor point for positioning.
 - `onDragging`: Callback for handling joystick drag events.
+
+### `AudioManager`
+
+`AudioManager` is a singleton object responsible for managing audio playback in the game. It handles
+music playback using MediaPlayer and sound effects using SoundPool.
+
+**Methods:**
+
+- `playMusic(context: Context, @RawRes resId: Int, loop: Boolean = false, volume: Float = 1f)`:Plays
+  background music from a raw resource. Parameters include context, resource ID, loop flag, and
+  volume level.
+- `startMusic()`: Starts the currently loaded music if it was paused.
+- `pauseMusic()`: Pauses the currently playing music.
+- `stopMusic()`: Stops and releases the currently playing music.
+- `registerSounds
+
+(context: Context, @RawRes vararg resIds: Int)`: Registers sound effects from raw resources with
+SoundPool.
+
+- `playSound(@RawRes resId: Int)`: Plays a registered sound effect.
+- `releaseAll()`: Releases all resources used by MediaPlayer and SoundPool.
+
+### `ImageManager`
+
+`ImageManager` is a singleton object that manages image caching and retrieval to improve performance
+when loading images from assets in Jetpack Compose.
+
+**Methods:**
+
+- `getBitmap(context: Context, filePath: String): Bitmap?`: Loads a bitmap from the
+  specified asset file path.
+- `splitSprite(context: Context, assetPath: String, col: Int, row: Int): List<Bitmap>`: Splits a
+  sprite bitmap into
+  multiple smaller bitmaps based on the specified number of rows and columns.
 
 ## Contact
 

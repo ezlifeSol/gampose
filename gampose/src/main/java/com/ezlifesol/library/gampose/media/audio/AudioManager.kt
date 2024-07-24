@@ -12,11 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * GameAudio is a singleton object responsible for managing audio playback in the game.
+ * AudioManager is a singleton object responsible for managing audio playback in the game.
  * It handles music playback using MediaPlayer and sound effects using SoundPool.
  */
 @Keep
-object GameAudio {
+object AudioManager {
 
     private var mediaPlayer: MediaPlayer? = null
     private val sounds = mutableMapOf<Int, Int>()
@@ -42,6 +42,24 @@ object GameAudio {
     }
 
     /**
+     * Starts the currently loaded music if it was paused.
+     */
+    fun startMusic() {
+        CoroutineScope(Dispatchers.IO).launch {
+            mediaPlayer?.start()
+        }
+    }
+
+    /**
+     * Pauses the currently playing music.
+     */
+    fun pauseMusic() {
+        CoroutineScope(Dispatchers.IO).launch {
+            mediaPlayer?.pause()
+        }
+    }
+
+    /**
      * Stops and releases the currently playing music.
      */
     fun stopMusic() {
@@ -51,18 +69,6 @@ object GameAudio {
                 release()
             }
             mediaPlayer = null
-        }
-    }
-
-    fun pauseMusic() {
-        CoroutineScope(Dispatchers.IO).launch {
-            mediaPlayer?.pause()
-        }
-    }
-
-    fun startMusic() {
-        CoroutineScope(Dispatchers.IO).launch {
-            mediaPlayer?.start()
         }
     }
 

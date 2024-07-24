@@ -11,7 +11,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.ezlifesol.demo.gamposedemo.game.GalaxyScreen
-import com.ezlifesol.library.gampose.media.audio.GameAudio
+import com.ezlifesol.library.gampose.media.audio.AudioManager
 
 @SuppressLint("SourceLockedOrientationActivity")
 class MainActivity : ComponentActivity() {
@@ -19,9 +19,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-//        GameAudio.registerSounds(this, R.raw.dino_die, R.raw.dino_jump, R.raw.dino_point)
-        GameAudio.playMusic(this, R.raw.music, loop = true)
-        GameAudio.registerSounds(this, R.raw.player_shot, R.raw.enemy_hit, R.raw.enemy_exp)
+//        AudioManager.registerSounds(this, R.raw.dino_die, R.raw.dino_jump, R.raw.dino_point)
+        AudioManager.playMusic(this, R.raw.music, loop = true)
+        AudioManager.registerSounds(this, R.raw.player_shot, R.raw.enemy_hit, R.raw.enemy_exp)
 
         setContent {
             val view = LocalView.current
@@ -39,16 +39,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        GameAudio.startMusic()
+        AudioManager.startMusic()
     }
 
     override fun onStop() {
         super.onStop()
-        GameAudio.pauseMusic()
+        AudioManager.pauseMusic()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        GameAudio.releaseAll()
+        AudioManager.releaseAll()
     }
 }

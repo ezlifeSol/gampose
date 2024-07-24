@@ -21,7 +21,7 @@ import com.ezlifesol.library.gampose.collision.detectColliding
 import com.ezlifesol.library.gampose.compose.GameObject
 import com.ezlifesol.library.gampose.compose.GameSpace
 import com.ezlifesol.library.gampose.compose.GameSprite
-import com.ezlifesol.library.gampose.media.audio.GameAudio
+import com.ezlifesol.library.gampose.media.audio.AudioManager
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameSize
 import com.ezlifesol.library.gampose.unit.GameVector
@@ -204,7 +204,7 @@ fun DinoScreen() {
             if (score > 0 && score % 100 == 0) {
                 if (!isPointed) {
                     LaunchedEffect(Unit) {
-                        GameAudio.playSound(R.raw.dino_point)
+                        AudioManager.playSound(R.raw.dino_point)
                     }
                     isPointed = true
                 }
@@ -238,7 +238,7 @@ fun DinoScreen() {
                 onCollidingStart = { other ->
                     if (other.name == "Cactus") {
                         if (isAlive) {
-                            GameAudio.playSound(R.raw.dino_die)
+                            AudioManager.playSound(R.raw.dino_die)
                         }
                         isAlive = false
                     }
@@ -261,7 +261,7 @@ fun DinoScreen() {
                 jumpMovement = 0f
                 jumpMovement -= jumpForce
                 isJumped = true
-                GameAudio.playSound(R.raw.dino_jump)
+                AudioManager.playSound(R.raw.dino_jump)
             }
         })
 
