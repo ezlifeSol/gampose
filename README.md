@@ -150,7 +150,6 @@ GameSpace(
     )
 }
 ```
-##### GameSpace Demo
 <img src="https://github.com/ezlifeSol/gampose/blob/main/dino_example.jpg" alt="Dino Standing Demo" width="500"/>
 
 #### Joystick
