@@ -74,7 +74,7 @@ Add the following to your `build.gradle` file:
 
 ```gradle
 dependencies {
-    implementation 'com.github.ezlifeSol:gampose:1.0.0-alpha'
+    implementation 'com.github.ezlifeSol:gampose:1.0.0'
 }
 ```
 
@@ -82,7 +82,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-  implementation("com.github.ezlifeSol:gampose:1.0.0-alpha")
+  implementation("com.github.ezlifeSol:gampose:1.0.0")
 }
 ```
 

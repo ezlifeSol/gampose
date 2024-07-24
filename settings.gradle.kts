@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Gampose Demo"
-include(":app")
+include(":demo")
 include(":gampose")

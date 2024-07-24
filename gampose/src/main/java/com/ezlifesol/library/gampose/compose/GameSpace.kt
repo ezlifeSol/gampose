@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -16,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.ezlifesol.library.gampose.unit.GameSize
 import kotlin.math.roundToInt
 
@@ -54,6 +58,9 @@ fun GameSpace(
     var isStarted by remember { mutableStateOf(false) }
     var isLoadedScreen by remember { mutableStateOf(false) }
 
+    // State variable to track the active status of the application.
+    var isActive by remember { mutableStateOf(true) }
+
     // Container for the game space, with layout and size calculations.
     Box(modifier = modifier.onGloballyPositioned {
         gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
@@ -76,7 +83,7 @@ fun GameSpace(
         }
 
         // Update game state and trigger game events.
-        if (isLoadedScreen) {
+        if (isLoadedScreen && isActive) {
             gameScope.gameSize = gameSize
             gameScope.gameTime = gameTime / 1000f
             gameScope.deltaTime = deltaMillisTime / 1000f
@@ -86,6 +93,21 @@ fun GameSpace(
             }
             gameScope.onUpdate()
             Spacer(modifier.drawBehind(onDraw))
+        }
+    }
+
+    // Listen to lifecycle events to update the active status.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            isActive = event != Lifecycle.Event.ON_STOP
+            if (isActive.not()) {
+                prevDeltaMillisTime = 0L
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 }

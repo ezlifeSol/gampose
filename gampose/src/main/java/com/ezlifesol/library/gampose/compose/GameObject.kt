@@ -94,53 +94,57 @@ fun GameObject(
         }
     }
 
-    Box(
-        modifier
-            .size(size.width.toDp(), size.height.toDp())
-            .offset {
-                val offsetX = position.x.roundToInt()
-                val offsetY = position.y.roundToInt()
-                anchor.getIntOffset(size.width, size.height, offsetX, offsetY)
-            }
-            .scale(scale.x, scale.y)
-            .background(color)
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragStart = { dragAmount ->
-                        onDragging?.onDragStart(GameVector(dragAmount.x, dragAmount.y))
-                    },
-                    onDragEnd = {
-                        onDragging?.onDragEnd()
-                    },
-                    onDragCancel = {
-                        onDragging?.onDragCancel()
-                    },
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        onDragging?.onDrag(change, GameVector(dragAmount.x, dragAmount.y))
-                    },
-                )
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = { offset ->
-                    onTap?.invoke(offset)
-                }, onDoubleTap = { offset ->
-                    onDoubleTap?.invoke(offset)
-                }, onLongPress = { offset ->
-                    onLongPress?.invoke(offset)
-                }, onPress = { offset ->
-                    onPress?.invoke(offset)
-                })
-            }
-            .apply {
-                onClick?.let {
-                    clickable(
-                        onClick = it,
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() })
-                }
-            }
-    ) {
+    var newModifier = modifier
+        .size(size.width.toDp(), size.height.toDp())
+        .offset {
+            val offsetX = position.x.roundToInt()
+            val offsetY = position.y.roundToInt()
+            anchor.getIntOffset(size.width, size.height, offsetX, offsetY)
+        }
+        .scale(scale.x, scale.y)
+        .background(color)
+
+    onDragging?.let {
+        newModifier = newModifier.pointerInput(Unit) {
+            detectDragGestures(
+                onDragStart = { dragAmount ->
+                    onDragging.onDragStart(GameVector(dragAmount.x, dragAmount.y))
+                },
+                onDragEnd = {
+                    onDragging.onDragEnd()
+                },
+                onDragCancel = {
+                    onDragging.onDragCancel()
+                },
+                onDrag = { change, dragAmount ->
+                    change.consume()
+                    onDragging.onDrag(change, GameVector(dragAmount.x, dragAmount.y))
+                },
+            )
+        }
+    }
+
+    if (onTap != null || onDoubleTap != null || onLongPress != null || onPress != null) {
+        newModifier = newModifier.pointerInput(Unit) {
+            detectTapGestures(onTap = { offset ->
+                onTap?.invoke(offset)
+            }, onDoubleTap = { offset ->
+                onDoubleTap?.invoke(offset)
+            }, onLongPress = { offset ->
+                onLongPress?.invoke(offset)
+            }, onPress = { offset ->
+                onPress?.invoke(offset)
+            })
+        }
+    }
+    onClick?.let {
+        newModifier = newModifier.clickable(
+            onClick = it,
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() })
+    }
+
+    Box(modifier = newModifier) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
