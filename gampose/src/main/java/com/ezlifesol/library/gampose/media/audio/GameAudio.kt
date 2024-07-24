@@ -1,4 +1,4 @@
-package com.ezlifesol.library.gampose.audio
+package com.ezlifesol.library.gampose.media.audio
 
 import android.content.Context
 import android.media.AudioAttributes
