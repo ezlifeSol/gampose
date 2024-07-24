@@ -15,13 +15,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ezlifesol.demo.gamposedemo.R
-import com.ezlifesol.library.gampose.audio.GameAudio
 import com.ezlifesol.library.gampose.collision.collider.CircleCollider
 import com.ezlifesol.library.gampose.collision.collider.RectangleCollider
 import com.ezlifesol.library.gampose.collision.detectColliding
 import com.ezlifesol.library.gampose.compose.GameObject
 import com.ezlifesol.library.gampose.compose.GameSpace
 import com.ezlifesol.library.gampose.compose.GameSprite
+import com.ezlifesol.library.gampose.media.audio.GameAudio
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameSize
 import com.ezlifesol.library.gampose.unit.GameVector
@@ -71,13 +71,13 @@ fun DinoScreen() {
     val runRate = 0.1f
     var nextRun by remember { mutableFloatStateOf(0f) }
     var runStep by remember { mutableIntStateOf(0) }
-    var dinoSprite by remember { mutableIntStateOf(R.drawable.ic_dino_run1) }
+    var dinoSprite by remember { mutableStateOf("dino/dino_run1.webp") }
     val dinoRunSprites = remember {
         mutableStateListOf(
-            R.drawable.ic_dino_run1,
-            R.drawable.ic_dino_jump,
-            R.drawable.ic_dino_run2,
-            R.drawable.ic_dino_jump
+            "dino/dino_run1.webp",
+            "dino/dino_jump.webp",
+            "dino/dino_run2.webp",
+            "dino/dino_jump.webp"
         )
     }
 
@@ -101,22 +101,22 @@ fun DinoScreen() {
         // Update dino sprite based on game state
         if (isAlive) {
             if (isJumped) {
-                dinoSprite = R.drawable.ic_dino_jump
+                dinoSprite = "dino/dino_jump.webp"
             } else if (gameTime > nextRun) {
                 dinoSprite = dinoRunSprites[runStep % dinoRunSprites.size]
                 runStep++
                 nextRun = gameTime + runRate
             }
         } else {
-            dinoSprite = R.drawable.ic_dino_die
+            dinoSprite = "dino/dino_die.webp"
         }
 
         // Ground sprites and positions
         val groundSprites = remember {
             mutableStateListOf(
-                R.drawable.ic_dino_ground1,
-                R.drawable.ic_dino_ground2,
-                R.drawable.ic_dino_ground3
+                "dino/ground1.webp",
+                "dino/ground2.webp",
+                "dino/ground3.webp"
             )
         }
         val groundSize = GameSize(1200f, 90f)
@@ -135,7 +135,7 @@ fun DinoScreen() {
         // Update ground positions and draw ground sprites
         for (index in 0 until numberOfGround) {
             GameSprite(
-                sprite = groundSprites[index],
+                assetPath = groundSprites[index],
                 size = groundSize,
                 position = groundPositions[index],
                 anchor = groundAnchor
@@ -172,7 +172,7 @@ fun DinoScreen() {
         dinoCollider.update(dinoPosition)
 
         // Cactus properties
-        val cactusSprite = R.drawable.ic_cactus
+        val cactusSprite = "dino/cactus.webp"
         val cactusSize = GameSize(115f, 200f)
         val cactusAnchor = GameAnchor.BottomLeft
         var cactusPosition by remember {
@@ -228,7 +228,7 @@ fun DinoScreen() {
 
         // Draw dino sprite and handle collisions
         GameSprite(
-            sprite = dinoSprite,
+            assetPath = dinoSprite,
             size = dinoSize,
             position = dinoPosition,
             anchor = dinoAnchor,
@@ -248,7 +248,7 @@ fun DinoScreen() {
 
         // Draw cactus sprite
         GameSprite(
-            sprite = cactusSprite,
+            assetPath = cactusSprite,
             size = cactusSize,
             position = cactusPosition,
             anchor = cactusAnchor,
@@ -268,7 +268,7 @@ fun DinoScreen() {
         // Draw replay button when game is over
         if (isAlive.not()) {
             GameSprite(
-                sprite = R.drawable.ic_replay,
+                assetPath = "dino/replay.webp",
                 size = GameSize(180f, 160f),
                 anchor = GameAnchor.Center,
                 position = GameVector(gameSize.width / 2, gameSize.height / 2),

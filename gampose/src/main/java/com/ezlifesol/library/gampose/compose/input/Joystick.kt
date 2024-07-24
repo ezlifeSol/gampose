@@ -48,7 +48,7 @@ fun Joystick(
     Box(modifier = modifier) {
         // Draw the joystick base
         GameSprite(
-            sprite = sprite,
+            resourceId = sprite,
             size = size,
             position = position,
             anchor = anchor
@@ -79,7 +79,7 @@ fun Joystick(
 
         // Draw the joystick stick
         GameSprite(
-            sprite = stickSprite,
+            resourceId = stickSprite,
             size = stickSize,
             position = stickPosition,
             anchor = GameAnchor.Center,
