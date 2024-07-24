@@ -4,7 +4,7 @@ Gampose is an Android library designed for developing games and graphical applic
 Compose. It provides a range of tools and components for managing game objects, handling collisions,
 processing input events, and managing audio.
 
-<img src="https://github.com/ezlifeSol/gampose/blob/main/dino_jump.gif" alt="Dino Jumping Over Cactus" width="700"/>
+<img src="https://github.com/ezlifeSol/gampose/blob/main/dino_run.gif" alt="Dino Jumping Over Cactus" width="700"/>
 <img src="https://github.com/ezlifeSol/gampose/blob/main/galaxy_shot.gif" alt="Dino Jumping Over Cactus" height="700"/>
 
 ## Features
