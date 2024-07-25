@@ -22,7 +22,6 @@ import com.ezlifesol.library.gampose.compose.GameObject
 import com.ezlifesol.library.gampose.compose.GameSpace
 import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.compose.input.Joystick
-import com.ezlifesol.library.gampose.log.debugLog
 import com.ezlifesol.library.gampose.media.audio.AudioManager
 import com.ezlifesol.library.gampose.media.image.ImageManager
 import com.ezlifesol.library.gampose.unit.GameAnchor
@@ -38,8 +37,7 @@ fun GalaxyScreen() {
 
         // Background game object
         GameObject(
-            size = GameSize(gameSize.width, gameSize.height),
-            color = Color(0f, 0f, 0.2f)
+            size = GameSize(gameSize.width, gameSize.height), color = Color(0f, 0f, 0.2f)
         )
 
         // Enemy settings
@@ -56,19 +54,17 @@ fun GalaxyScreen() {
         // Render enemies
         enemyInfos.forEach { enemyInfo ->
             var nextEnemyExplosion by remember { mutableFloatStateOf(0f) }
-            var enemyExplosionStep by remember { mutableIntStateOf(0) }
 
             if (gameTime > nextEnemyExplosion && enemyInfo.isDestroy) {
-                enemyExplosionStep++
-                enemyInfo.explosionStep = enemyExplosionStep
+                enemyInfo.explosionStep++
                 nextEnemyExplosion = gameTime + explosionEffectRate
             } else {
                 // Move enemies from outside the screen into the screen
                 enemyInfo.position = enemyInfo.position.copy(y = enemyInfo.position.y + (deltaTime * 100f))
             }
 
-            if (enemyExplosionStep < explosionSprites.size) {
-                val sprite = if (enemyInfo.isDestroy) explosionSprites[enemyExplosionStep % explosionSprites.size]
+            if (enemyInfo.explosionStep < explosionSprites.size) {
+                val sprite = if (enemyInfo.isDestroy) explosionSprites[enemyInfo.explosionStep % explosionSprites.size]
                 else enemySprite
                 GameSprite(
                     bitmap = sprite,
@@ -82,10 +78,8 @@ fun GalaxyScreen() {
 
         // Remove enemies that are out of bounds or finished exploding
         enemyInfos.removeIf {
-            it.position.y > gameSize.height + enemySize.height || (it.isDestroy && explosionSprites.size <= it.explosionStep)
+            it.position.y > gameSize.height + enemySize.height || (it.isDestroy && it.explosionStep >= explosionSprites.size)
         }
-
-        debugLog("Enemies:${enemyInfos.size}")
 
         // Spawn new enemies outside the screen
         if (gameTime > nextEnemySpawn) {
@@ -121,14 +115,12 @@ fun GalaxyScreen() {
                 position = playerPosition,
                 collider = playerCollider,
                 otherColliders = enemyInfos.mapNotNull { it.collider }.toTypedArray(),
-                onColliding = detectColliding(
-                    onCollidingStart = { other ->
-                        if (other.name == "Enemy") {
-                            isPlayerAlive = false
-                            AudioManager.playSound(R.raw.enemy_exp)
-                        }
+                onColliding = detectColliding(onCollidingStart = { other ->
+                    if (other.name == "Enemy") {
+                        isPlayerAlive = false
+                        AudioManager.playSound(R.raw.enemy_exp)
                     }
-                ),
+                }),
                 anchor = GameAnchor.Center
             )
         }
@@ -149,18 +141,16 @@ fun GalaxyScreen() {
                 collider = bulletInfo.collider,
                 anchor = GameAnchor.Center,
                 otherColliders = enemyInfos.mapNotNull { it.collider }.toTypedArray(),
-                onColliding = detectColliding(
-                    onCollidingStart = { other ->
-                        if (other.name == "Enemy") {
-                            enemyInfos.find { it.collider == other }?.apply {
-                                collider = null
-                                isDestroy = true
-                            }
-                            bulletInfo.position.y = -1000f
-                            AudioManager.playSound(R.raw.enemy_exp)
+                onColliding = detectColliding(onCollidingStart = { other ->
+                    if (other.name == "Enemy") {
+                        enemyInfos.find { it.collider == other }?.apply {
+                            collider = null
+                            isDestroy = true
                         }
+                        bulletInfo.position.y = -1000f
+                        AudioManager.playSound(R.raw.enemy_exp)
                     }
-                )
+                })
             )
         }
 
@@ -174,8 +164,7 @@ fun GalaxyScreen() {
         )
 
         // Handle joystick input for player movement and shooting
-        Joystick(
-            size = GameSize(400f, 400f),
+        Joystick(size = GameSize(400f, 400f),
             position = GameVector(gameSize.width / 2, gameSize.height - 200f),
             anchor = GameAnchor.BottomCenter,
             onDragging = {
@@ -195,8 +184,7 @@ fun GalaxyScreen() {
                         nextBulletSpawn = gameTime + bulletSpawnRate
                     }
                 }
-            }
-        )
+            })
     }
 }
 
@@ -214,6 +202,5 @@ data class EnemyInfo(
  * Open class representing object information including position and collider.
  */
 open class ObjectInfo(
-    open var position: GameVector,
-    open var collider: Collider<out Shape>?
+    open var position: GameVector, open var collider: Collider<out Shape>?
 )
