@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.ezlifesol.library.gampose.collision.OnCollidingListener
@@ -24,23 +25,23 @@ import com.ezlifesol.library.gampose.unit.toDp
 /**
  * Creates a graphical object (sprite) from a drawable resource.
  *
- * @param resourceId The drawable resource to display the image for the sprite.
+ * @param resourceId The drawable resource ID for the image to display in the sprite.
  * @param size The size of the sprite.
  * @param modifier Modifier to apply to the Box containing the sprite.
  * @param position The position of the sprite in the game space.
- * @param anchor The anchor point of the sprite to determine how it's placed based on its position.
+ * @param anchor The anchor point of the sprite that determines how it is positioned.
  * @param scale The scale of the sprite along the x and y axes.
  * @param angle The rotation angle of the sprite.
- * @param color The background color of the sprite, default is transparent.
- * @param collider Collider to handle collision detection for the sprite.
- * @param otherColliders Other colliders to check for collisions with the sprite.
- * @param onColliding Listener to handle collision events between the sprite and other colliders.
- * @param onClick Callback invoked when the sprite is clicked.
- * @param onTap Callback invoked when the sprite is tapped.
- * @param onDoubleTap Callback invoked when the sprite is double-tapped.
- * @param onLongPress Callback invoked when the sprite is long-pressed.
- * @param onPress Callback invoked when the sprite is pressed.
- * @param onDragging Listener to handle drag events on the sprite.
+ * @param color The background color of the sprite. Defaults to transparent.
+ * @param collider Optional collider for handling collision detection with the sprite.
+ * @param otherColliders Optional array of other colliders to check for collisions with the sprite.
+ * @param onColliding Optional listener invoked when the sprite collides with another collider.
+ * @param onClick Optional callback invoked when the sprite is clicked.
+ * @param onTap Optional callback invoked when the sprite is tapped.
+ * @param onDoubleTap Optional callback invoked when the sprite is double-tapped.
+ * @param onLongPress Optional callback invoked when the sprite is long-pressed.
+ * @param onPress Optional callback invoked when the sprite is pressed.
+ * @param onDragging Optional listener for handling drag events on the sprite.
  */
 @Keep
 @Composable
@@ -94,23 +95,23 @@ fun GameSprite(
 /**
  * Creates a graphical object (sprite) from an asset image.
  *
- * @param assetPath The path to the asset image to display for the sprite.
+ * @param assetPath The path to the asset image within the assets folder.
  * @param size The size of the sprite.
  * @param modifier Modifier to apply to the Box containing the sprite.
  * @param position The position of the sprite in the game space.
- * @param anchor The anchor point of the sprite to determine how it's placed based on its position.
+ * @param anchor The anchor point of the sprite that determines how it is positioned.
  * @param scale The scale of the sprite along the x and y axes.
  * @param angle The rotation angle of the sprite.
- * @param color The background color of the sprite, default is transparent.
- * @param collider Collider to handle collision detection for the sprite.
- * @param otherColliders Other colliders to check for collisions with the sprite.
- * @param onColliding Listener to handle collision events between the sprite and other colliders.
- * @param onClick Callback invoked when the sprite is clicked.
- * @param onTap Callback invoked when the sprite is tapped.
- * @param onDoubleTap Callback invoked when the sprite is double-tapped.
- * @param onLongPress Callback invoked when the sprite is long-pressed.
- * @param onPress Callback invoked when the sprite is pressed.
- * @param onDragging Listener to handle drag events on the sprite.
+ * @param color The background color of the sprite. Defaults to transparent.
+ * @param collider Optional collider for handling collision detection with the sprite.
+ * @param otherColliders Optional array of other colliders to check for collisions with the sprite.
+ * @param onColliding Optional listener invoked when the sprite collides with another collider.
+ * @param onClick Optional callback invoked when the sprite is clicked.
+ * @param onTap Optional callback invoked when the sprite is tapped.
+ * @param onDoubleTap Optional callback invoked when the sprite is double-tapped.
+ * @param onLongPress Optional callback invoked when the sprite is long-pressed.
+ * @param onPress Optional callback invoked when the sprite is pressed.
+ * @param onDragging Optional listener for handling drag events on the sprite.
  */
 @Keep
 @Composable
@@ -133,9 +134,74 @@ fun GameSprite(
     onPress: ((Offset) -> Unit)? = null,
     onDragging: OnDraggingListener? = null,
 ) {
+    // Retrieve the ImageBitmap from the asset path using ImageManager.
     val context = LocalContext.current
     val imageBitmap = ImageManager.getBitmap(context, assetPath)
 
+    // Delegate to the other GameSprite function that takes an ImageBitmap.
+    GameSprite(
+        bitmap = imageBitmap,
+        size = size,
+        modifier = modifier,
+        position = position,
+        anchor = anchor,
+        angle = angle,
+        scale = scale,
+        color = color,
+        collider = collider,
+        otherColliders = otherColliders,
+        onColliding = onColliding,
+        onClick = onClick,
+        onTap = onTap,
+        onDoubleTap = onDoubleTap,
+        onLongPress = onLongPress,
+        onPress = onPress,
+        onDragging = onDragging
+    )
+}
+
+/**
+ * Creates a graphical object (sprite) from an ImageBitmap.
+ *
+ * @param bitmap The ImageBitmap to display for the sprite.
+ * @param size The size of the sprite.
+ * @param modifier Modifier to apply to the Box containing the sprite.
+ * @param position The position of the sprite in the game space.
+ * @param anchor The anchor point of the sprite that determines how it is positioned.
+ * @param scale The scale of the sprite along the x and y axes.
+ * @param angle The rotation angle of the sprite.
+ * @param color The background color of the sprite. Defaults to transparent.
+ * @param collider Optional collider for handling collision detection with the sprite.
+ * @param otherColliders Optional array of other colliders to check for collisions with the sprite.
+ * @param onColliding Optional listener invoked when the sprite collides with another collider.
+ * @param onClick Optional callback invoked when the sprite is clicked.
+ * @param onTap Optional callback invoked when the sprite is tapped.
+ * @param onDoubleTap Optional callback invoked when the sprite is double-tapped.
+ * @param onLongPress Optional callback invoked when the sprite is long-pressed.
+ * @param onPress Optional callback invoked when the sprite is pressed.
+ * @param onDragging Optional listener for handling drag events on the sprite.
+ */
+@Keep
+@Composable
+fun GameSprite(
+    bitmap: ImageBitmap,
+    size: GameSize,
+    modifier: Modifier = Modifier,
+    position: GameVector = GameVector.zero,
+    anchor: GameAnchor = GameAnchor.TopLeft,
+    scale: GameScale = GameScale.default,
+    angle: Float = 0f,
+    color: Color = Color.Transparent,
+    collider: Collider<out Shape>? = null,
+    otherColliders: Array<Collider<out Shape>>? = null,
+    onColliding: OnCollidingListener? = null,
+    onClick: (() -> Unit)? = null,
+    onTap: ((Offset) -> Unit)? = null,
+    onDoubleTap: ((Offset) -> Unit)? = null,
+    onLongPress: ((Offset) -> Unit)? = null,
+    onPress: ((Offset) -> Unit)? = null,
+    onDragging: OnDraggingListener? = null,
+) {
     // Use the GameObject function to create and manage the sprite with the specified properties and events.
     GameObject(
         size = size,
@@ -155,9 +221,9 @@ fun GameSprite(
         onPress = onPress,
         onDragging = onDragging
     ) {
-        // Display the image from the asset.
+        // Display the ImageBitmap.
         Image(
-            bitmap = imageBitmap,
+            bitmap = bitmap,
             contentDescription = null,
             modifier = Modifier.size(size.width.toDp(), size.height.toDp())
         )

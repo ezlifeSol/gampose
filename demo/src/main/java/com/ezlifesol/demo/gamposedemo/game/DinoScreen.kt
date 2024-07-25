@@ -159,17 +159,13 @@ fun DinoScreen() {
         val dinoCollider by remember {
             mutableStateOf(
                 CircleCollider.create(
-                    name = "Dino",
-                    size = dinoSize,
-                    position = dinoPosition,
-                    anchor = dinoAnchor
+                    name = "Dino"
                 )
             )
         }
 
         // Update dino position and collider
         dinoPosition = GameVector(dinoPosition.x, dinoPosition.y + (jumpMovement * deltaTime))
-        dinoCollider.update(dinoPosition)
 
         // Cactus properties
         val cactusSprite = "dino/cactus.webp"
@@ -181,17 +177,13 @@ fun DinoScreen() {
         val cactusCollider by remember {
             mutableStateOf(
                 RectangleCollider.create(
-                    name = "Cactus",
-                    size = cactusSize,
-                    position = cactusPosition,
-                    anchor = cactusAnchor
+                    name = "Cactus"
                 )
             )
         }
 
         // Update cactus position and collider
         cactusPosition = GameVector(gameSize.width - cactusX, gameSize.height - (groundSize.height * 0.3f))
-        cactusCollider.update(cactusPosition)
 
         // Apply gravity to jump movement
         jumpMovement += deltaTime * gravity

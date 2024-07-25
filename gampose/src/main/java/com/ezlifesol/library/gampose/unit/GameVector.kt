@@ -82,4 +82,12 @@ open class GameVector(
      * @return A new GameVector instance representing the result of the division.
      */
     operator fun div(amount: Float) = GameVector(x / amount, y / amount)
+
+    /**
+     * Creates a copy of this GameVector with optional new x and y values.
+     * @param x New x value (default is the current x value).
+     * @param y New y value (default is the current y value).
+     * @return A new GameVector instance with the specified x and y values.
+     */
+    fun copy(x: Float = this.x, y: Float = this.y) = GameVector(x, y)
 }

@@ -16,51 +16,48 @@ import kotlin.math.min
  * update the circle's shape based on position and check for overlaps with other colliders.
  *
  * @param name The name of the collider.
- * @param size The size of the collider, used to determine the radius of the circle.
- * @param anchor The anchor point of the collider, used for positioning.
+ * @param syncMode The synchronization mode for the collider, determining whether its properties
+ *                 are automatically or manually synchronized with the GameObject.
  */
 @Keep
 class CircleCollider(
     override var name: String,
-    override var size: GameSize,
-    override var anchor: GameAnchor
+    override var syncMode: ColliderSyncMode,
 ) : Collider<Circle> {
 
     // The shape of the collider, initially set to null.
     override var shape: Circle? = null
+    override var size: GameSize? = null
+    override var anchor: GameAnchor? = null
 
     companion object {
         /**
-         * Factory method to create a CircleCollider with a specific name, size, position, and anchor.
+         * Factory method to create a CircleCollider with a specific name and sync mode.
          *
          * @param name The name of the collider.
-         * @param size The size of the collider, default is zero size.
-         * @param position The position of the collider, default is the zero vector.
-         * @param anchor The anchor point of the collider, default is TopLeft.
+         * @param syncMode The synchronization mode for the collider, default is Auto.
          * @return A CircleCollider instance with the specified parameters.
          */
         fun create(
             name: String,
-            size: GameSize = GameSize.zero,
-            position: GameVector = GameVector.zero,
-            anchor: GameAnchor = GameAnchor.TopLeft
+            syncMode: ColliderSyncMode = ColliderSyncMode.Auto
         ): CircleCollider {
-            val collider = CircleCollider(name, size, anchor)
-            collider.shape = collider.update(position)
-            return collider
+            return CircleCollider(name, syncMode)
         }
     }
 
     /**
-     * Updates the shape of the collider based on the given position.
+     * Updates the shape of the collider based on the given position, size, and anchor.
      *
      * Calculates the radius as half of the minimum of width and height, and updates the
      * circle's position and size based on the anchor and position.
      *
      * @param position The new position of the collider.
+     * @param size The new size of the collider.
+     * @param anchor The new anchor point of the collider.
      * @return The updated Circle shape of the collider.
      */
-    override fun update(position: GameVector): Circle? {
+    override fun update(position: GameVector, size: GameSize, anchor: GameAnchor): Circle? {
         val radius = min(size.width, size.height) / 2f
         val intOffset = anchor.getIntOffset(size.width, size.height, position.x.toInt(), position.y.toInt())
         shape = Circle(
@@ -110,10 +107,10 @@ class CircleCollider(
      * @param other The RectangleCollider to check for overlap.
      * @return True if the circle overlaps with the rectangle, false otherwise.
      */
-    fun overlaps(other: RectangleCollider): Boolean {
+    private fun overlaps(other: RectangleCollider): Boolean {
         return shape?.let {
-            val closestX = it.centerX.coerceIn(other.shape?.left, other.shape?.right)
-            val closestY = it.centerY.coerceIn(other.shape?.top, other.shape?.bottom)
+            val closestX = it.centerX.coerceIn(other.shape?.left ?: 0f, other.shape?.right ?: 0f)
+            val closestY = it.centerY.coerceIn(other.shape?.top ?: 0f, other.shape?.bottom ?: 0f)
             val distanceX = it.centerX - closestX
             val distanceY = it.centerY - closestY
             val distanceSquared = distanceX * distanceX + distanceY * distanceY

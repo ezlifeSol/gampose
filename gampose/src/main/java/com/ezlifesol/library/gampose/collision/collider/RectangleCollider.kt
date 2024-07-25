@@ -15,51 +15,49 @@ import com.ezlifesol.library.gampose.unit.GameVector
  * update the rectangle's shape based on position and check for overlaps with other colliders.
  *
  * @param name The name of the collider.
- * @param size The size of the collider, used to determine the dimensions of the rectangle.
- * @param anchor The anchor point of the collider, used for positioning.
+ * @param syncMode The synchronization mode for the collider, determining whether its properties
+ *                 are automatically or manually synchronized with the GameObject.
  */
 @Keep
 class RectangleCollider(
     override var name: String,
-    override var size: GameSize,
-    override var anchor: GameAnchor
+    override var syncMode: ColliderSyncMode,
 ) : Collider<Rectangle> {
 
     // The shape of the collider, initially set to null.
     override var shape: Rectangle? = null
+    override var size: GameSize? = null
+    override var anchor: GameAnchor? = null
 
     companion object {
         /**
-         * Factory method to create a RectangleCollider with a specific name, size, position, and anchor.
+         * Factory method to create a RectangleCollider with a specific name and sync mode.
          *
          * @param name The name of the collider.
-         * @param size The size of the collider, default is zero size.
-         * @param position The position of the collider, default is the zero vector.
-         * @param anchor The anchor point of the collider, default is TopLeft.
+         * @param syncMode The synchronization mode for the collider, default is Auto.
          * @return A RectangleCollider instance with the specified parameters.
          */
         fun create(
             name: String,
-            size: GameSize = GameSize.zero,
-            position: GameVector = GameVector.zero,
-            anchor: GameAnchor = GameAnchor.TopLeft
+            syncMode: ColliderSyncMode = ColliderSyncMode.Auto
         ): RectangleCollider {
-            val collider = RectangleCollider(name, size, anchor)
-            collider.shape = collider.update(position)
+            val collider = RectangleCollider(name, syncMode)
             return collider
         }
     }
 
     /**
-     * Updates the shape of the collider based on the given position.
+     * Updates the shape of the collider based on the given position, size, and anchor.
      *
      * Calculates the position of the rectangle using the anchor and updates the
      * rectangle's dimensions based on the size.
      *
      * @param position The new position of the collider.
+     * @param size The new size of the collider.
+     * @param anchor The new anchor point of the collider.
      * @return The updated Rectangle shape of the collider.
      */
-    override fun update(position: GameVector): Rectangle? {
+    override fun update(position: GameVector, size: GameSize, anchor: GameAnchor): Rectangle? {
         val intOffset = anchor.getIntOffset(size.width, size.height, position.x.toInt(), position.y.toInt())
 
         shape = Rectangle(

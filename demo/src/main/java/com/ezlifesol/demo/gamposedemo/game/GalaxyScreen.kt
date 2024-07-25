@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import com.ezlifesol.demo.gamposedemo.R
 import com.ezlifesol.library.gampose.collision.collider.CircleCollider
 import com.ezlifesol.library.gampose.collision.collider.Collider
@@ -22,81 +24,138 @@ import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.compose.input.Joystick
 import com.ezlifesol.library.gampose.log.debugLog
 import com.ezlifesol.library.gampose.media.audio.AudioManager
+import com.ezlifesol.library.gampose.media.image.ImageManager
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameSize
 import com.ezlifesol.library.gampose.unit.GameVector
+import kotlin.math.abs
 import kotlin.random.Random
 
 @Composable
 fun GalaxyScreen() {
-    GameSpace(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    val context = LocalContext.current
+    GameSpace(modifier = Modifier.fillMaxSize()) {
 
+        // Background game object
         GameObject(
             size = GameSize(gameSize.width, gameSize.height),
             color = Color(0f, 0f, 0.2f)
         )
 
-        val playerSize = GameSize(196f, 140f)
-        var playerPosition by remember {
-            mutableStateOf(GameVector(gameSize.width / 2, gameSize.height - 700f))
-        }
-        val playerSprite by remember {
-            mutableStateOf("galaxy/player.webp")
-        }
-
-        val bulletRate = 0.3f
-        var nextBullet by remember {
-            mutableFloatStateOf(0f)
-        }
-
-        val bulletSprite = "galaxy/player_bullet.webp"
-        val bulletSize = GameSize(36f, 68f)
-        val bulletAnchor = GameAnchor.Center
-        val bulletInfos = remember { mutableStateListOf<GameObjectInfo>() }
-        val bulletColliders = remember { mutableStateListOf<RectangleCollider>() }
-
-        val enemyRate = 2f
-        var nextEnemy by remember {
-            mutableFloatStateOf(gameTime + 3f)
-        }
-
+        // Enemy settings
+        val enemySpawnRate = 2f
+        var nextEnemySpawn by remember { mutableFloatStateOf(0f) }
         val enemySize = GameSize(132f, 144f)
-        val enemyAnchor = GameAnchor.BottomCenter
-        val enemyInfos = remember { mutableStateListOf<GameObjectInfo>() }
-        val enemyColliders = remember { mutableStateListOf<CircleCollider>() }
+        val enemyInfos = remember { mutableStateListOf<EnemyInfo>() }
+        val enemySprite = remember { ImageManager.getBitmap(context, "galaxy/enemy.webp") }
 
-        GameSprite(
-            assetPath = playerSprite,
-            size = playerSize,
-            position = playerPosition,
-            anchor = GameAnchor.Center
-        )
+        // Explosion settings
+        val explosionEffectRate = 0.02f
+        val explosionSprites = remember { ImageManager.splitSprite(context, "galaxy/exp.webp", 5, 5) }
 
-        bulletInfos.forEach { bulletInfo ->
-            bulletInfo.apply {
-                position = GameVector(position.x, position.y - (deltaTime * 1000f))
-                collider.update(position)
+        // Render enemies
+        enemyInfos.forEach { enemyInfo ->
+            var nextEnemyExplosion by remember { mutableFloatStateOf(0f) }
+            var enemyExplosionStep by remember { mutableIntStateOf(0) }
+
+            if (gameTime > nextEnemyExplosion && enemyInfo.isDestroy) {
+                enemyExplosionStep++
+                enemyInfo.explosionStep = enemyExplosionStep
+                nextEnemyExplosion = gameTime + explosionEffectRate
+            } else {
+                // Move enemies from outside the screen into the screen
+                enemyInfo.position = enemyInfo.position.copy(y = enemyInfo.position.y + (deltaTime * 100f))
             }
+
+            if (enemyExplosionStep < explosionSprites.size) {
+                val sprite = if (enemyInfo.isDestroy) explosionSprites[enemyExplosionStep % explosionSprites.size]
+                else enemySprite
+                GameSprite(
+                    bitmap = sprite,
+                    size = if (enemyInfo.isDestroy) enemySize * 2f else enemySize,
+                    position = enemyInfo.position,
+                    collider = enemyInfo.collider,
+                    anchor = GameAnchor.Center
+                )
+            }
+        }
+
+        // Remove enemies that are out of bounds or finished exploding
+        enemyInfos.removeIf {
+            it.position.y > gameSize.height + enemySize.height || (it.isDestroy && explosionSprites.size <= it.explosionStep)
+        }
+
+        debugLog("Enemies:${enemyInfos.size}")
+
+        // Spawn new enemies outside the screen
+        if (gameTime > nextEnemySpawn) {
+            val randomX = Random.nextInt(gameSize.width.toInt()).toFloat()
+            val randomY = -abs(Random.nextInt(500).toFloat() + enemySize.height)
+            val enemyPosition = GameVector(randomX, randomY)
+            val enemyCollider = CircleCollider.create(name = "Enemy")
+            enemyInfos.add(EnemyInfo(enemyPosition, enemyCollider))
+            nextEnemySpawn = gameTime + enemySpawnRate
+        }
+
+        // Player settings
+        val playerSize = GameSize(196f, 140f)
+        var playerPosition by remember { mutableStateOf(GameVector(gameSize.width / 2, gameSize.height - 700f)) }
+        var playerSprite by remember { mutableStateOf("galaxy/player.webp") }
+        val playerCollider by remember { mutableStateOf(CircleCollider.create("Player")) }
+        var isPlayerAlive by remember { mutableStateOf(true) }
+        var nextPlayerExplosion by remember { mutableFloatStateOf(0f) }
+        var playerExplosionStep by remember { mutableIntStateOf(0) }
+
+        // Render player sprite or explosion effect
+        if (gameTime > nextPlayerExplosion && !isPlayerAlive) {
+            playerExplosionStep++
+            nextPlayerExplosion = gameTime + explosionEffectRate
+        }
+
+        if (playerExplosionStep < explosionSprites.size) {
+            val sprite = if (!isPlayerAlive) explosionSprites[playerExplosionStep % explosionSprites.size]
+            else remember { ImageManager.getBitmap(context, playerSprite) }
             GameSprite(
-                assetPath = bulletSprite,
+                bitmap = sprite,
+                size = if (!isPlayerAlive) playerSize * 2f else playerSize,
+                position = playerPosition,
+                collider = playerCollider,
+                otherColliders = enemyInfos.mapNotNull { it.collider }.toTypedArray(),
+                onColliding = detectColliding(
+                    onCollidingStart = { other ->
+                        if (other.name == "Enemy") {
+                            isPlayerAlive = false
+                            AudioManager.playSound(R.raw.enemy_exp)
+                        }
+                    }
+                ),
+                anchor = GameAnchor.Center
+            )
+        }
+
+        // Bullet settings
+        val bulletSpawnRate = 0.3f
+        var nextBulletSpawn by remember { mutableFloatStateOf(0f) }
+        val bulletSize = GameSize(36f, 68f)
+        val bulletInfos = remember { mutableStateListOf<ObjectInfo>() }
+
+        // Render bullets
+        bulletInfos.forEach { bulletInfo ->
+            bulletInfo.position = bulletInfo.position.copy(y = bulletInfo.position.y - (deltaTime * 1000f))
+            GameSprite(
+                assetPath = "galaxy/player_bullet.webp",
                 size = bulletSize,
                 position = bulletInfo.position,
                 collider = bulletInfo.collider,
-                anchor = bulletAnchor,
-                otherColliders = enemyColliders.toTypedArray(),
+                anchor = GameAnchor.Center,
+                otherColliders = enemyInfos.mapNotNull { it.collider }.toTypedArray(),
                 onColliding = detectColliding(
                     onCollidingStart = { other ->
-                        if (other.name.contains("Enemy")) {
-                            enemyInfos.removeIf { enemyInfo ->
-                                enemyInfo.collider == other
+                        if (other.name == "Enemy") {
+                            enemyInfos.find { it.collider == other }?.apply {
+                                collider = null
+                                isDestroy = true
                             }
-                            enemyColliders.removeIf { collider ->
-                                collider == other
-                            }
-
                             bulletInfo.position.y = -1000f
                             AudioManager.playSound(R.raw.enemy_exp)
                         }
@@ -105,88 +164,56 @@ fun GalaxyScreen() {
             )
         }
 
-        bulletInfos.removeIf { it.position.y < 0f }.apply {
-            if (this) {
-                AudioManager.playSound(R.raw.enemy_hit)
-            }
-        }
+        // Remove bullets that are out of bounds
+        bulletInfos.removeIf { it.position.y < 0f }
 
-        if (playerPosition.x < playerSize.width / 2) {
-            playerPosition.x = playerSize.width / 2
-        } else if (playerPosition.x > gameSize.width - playerSize.width / 2) {
-            playerPosition.x = gameSize.width - playerSize.width / 2
-        }
+        // Clamp player position within game boundaries
+        playerPosition = playerPosition.copy(
+            x = playerPosition.x.coerceIn(playerSize.width / 2, gameSize.width - playerSize.width / 2),
+            y = playerPosition.y.coerceIn(playerSize.height / 2, gameSize.height - playerSize.height / 2)
+        )
 
-        if (playerPosition.y < playerSize.height / 2) {
-            playerPosition.y = playerSize.height / 2
-        } else if (playerPosition.y > gameSize.height - playerSize.height / 2) {
-            playerPosition.y = gameSize.height - playerSize.height / 2
-        }
-
-        enemyInfos.forEach { enemyInfo ->
-            enemyInfo.apply {
-                position = GameVector(position.x, position.y + (deltaTime * 100f))
-                collider.update(position)
-            }
-            GameSprite(
-                assetPath = "galaxy/enemy.webp",
-                size = enemySize,
-                position = enemyInfo.position,
-                anchor = enemyAnchor
-            )
-        }
-
-        if (gameTime > nextEnemy) {
-            val randomX = Random.nextInt(gameSize.width.toInt()).toFloat()
-            val randomY = Random.nextInt(100).toFloat()
-            val enemyPosition = GameVector(randomX, randomY)
-            val enemyCollider = CircleCollider.create(
-                name = "Enemy${enemyInfos.size}",
-                size = enemySize,
-                position = enemyPosition,
-                anchor = enemyAnchor
-            )
-            enemyColliders.add(enemyCollider)
-            enemyInfos.add(GameObjectInfo(enemyPosition, enemyCollider))
-
-            nextEnemy = gameTime + enemyRate
-        }
-
+        // Handle joystick input for player movement and shooting
         Joystick(
             size = GameSize(400f, 400f),
             position = GameVector(gameSize.width / 2, gameSize.height - 200f),
             anchor = GameAnchor.BottomCenter,
             onDragging = {
-//                if (it.x > 0) {
-//                    playerSprite = "galaxy/player_right.webp"
-//                } else if (it.x < 0) {
-//                    playerSprite = "galaxy/player_left.webp"
-//                } else {
-//                    playerSprite = "galaxy/player.webp"
-//                }
-                playerPosition += it * deltaTime * 500f
+                if (isPlayerAlive) {
+                    playerSprite = when {
+                        it.x > 0.3f -> "galaxy/player_right.webp"
+                        it.x < -0.3f -> "galaxy/player_left.webp"
+                        else -> "galaxy/player.webp"
+                    }
+                    playerPosition += it * deltaTime * 500f
 
-                if (it != GameVector.zero && gameTime > nextBullet) {
-                    debugLog("Fire")
-                    val bulletPosition = GameVector(playerPosition.x, playerPosition.y - 50f)
-                    val bulletCollider = RectangleCollider.create(
-                        name = "Bullet${bulletInfos.size}",
-                        size = bulletSize,
-                        position = bulletPosition,
-                        anchor = bulletAnchor
-                    )
-                    bulletColliders.add(bulletCollider)
-                    bulletInfos.add(GameObjectInfo(bulletPosition, bulletCollider))
-
-                    AudioManager.playSound(R.raw.player_shot)
-                    nextBullet = gameTime + bulletRate
+                    if (it != GameVector.zero && gameTime > nextBulletSpawn) {
+                        val bulletPosition = GameVector(playerPosition.x, playerPosition.y - 50f)
+                        val bulletCollider = RectangleCollider.create(name = "Bullet")
+                        bulletInfos.add(ObjectInfo(bulletPosition, bulletCollider))
+                        AudioManager.playSound(R.raw.player_shot)
+                        nextBulletSpawn = gameTime + bulletSpawnRate
+                    }
                 }
             }
         )
     }
 }
 
-data class GameObjectInfo(
-    var position: GameVector,
-    var collider: Collider<out Shape>
+/**
+ * Data class representing enemy information including position, collider, and destruction state.
+ */
+data class EnemyInfo(
+    override var position: GameVector,
+    override var collider: Collider<out Shape>?,
+    var isDestroy: Boolean = false,
+    var explosionStep: Int = 0
+) : ObjectInfo(position, collider)
+
+/**
+ * Open class representing object information including position and collider.
+ */
+open class ObjectInfo(
+    open var position: GameVector,
+    open var collider: Collider<out Shape>?
 )

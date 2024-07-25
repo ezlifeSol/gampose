@@ -23,6 +23,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import com.ezlifesol.library.gampose.collision.OnCollidingListener
 import com.ezlifesol.library.gampose.collision.collider.Collider
+import com.ezlifesol.library.gampose.collision.collider.ColliderSyncMode
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.input.OnDraggingListener
 import com.ezlifesol.library.gampose.unit.GameAnchor
@@ -33,25 +34,28 @@ import com.ezlifesol.library.gampose.unit.toDp
 import kotlin.math.roundToInt
 
 /**
- * GameObject is a Composable function that represents a game object with position, size, scale, rotation, and color.
- * It supports collision detection, click and drag interactions, and custom drawing content.
+ * GameObject is a Composable function that represents a game object with various properties.
  *
- * @param modifier Modifier to apply to the Box container.
- * @param size Size of the game object.
- * @param position Position of the game object.
- * @param anchor Anchor point for positioning the game object.
- * @param scale Scale factor for the game object.
- * @param angle Rotation angle of the game object.
+ * It supports positioning, scaling, rotation, and coloring of the game object. Additionally, it includes
+ * collision detection, and interaction handling for click, tap, drag, and other gestures. It also allows for
+ * custom drawing content within the game object.
+ *
+ * @param modifier Modifier to apply to the Box container, used for styling and layout.
+ * @param size Size of the game object, defining its width and height.
+ * @param position Position of the game object in the coordinate space.
+ * @param anchor Anchor point for positioning the game object relative to its size.
+ * @param scale Scale factor for resizing the game object.
+ * @param angle Rotation angle of the game object in degrees.
  * @param color Background color of the game object.
- * @param collider Optional Collider for collision detection.
- * @param otherColliders List of other Colliders for collision detection.
- * @param onColliding Listener for collision events.
- * @param onClick Lambda function for click events.
- * @param onTap Lambda function for tap events.
- * @param onDoubleTap Lambda function for double tap events.
- * @param onLongPress Lambda function for long press events.
- * @param onPress Lambda function for press events.
- * @param onDragging Listener for dragging events.
+ * @param collider Optional Collider for detecting collisions with other objects.
+ * @param otherColliders List of other Colliders to check for collisions with.
+ * @param onColliding Listener for handling collision events.
+ * @param onClick Lambda function to handle click events on the game object.
+ * @param onTap Lambda function to handle tap events, providing the tap offset.
+ * @param onDoubleTap Lambda function to handle double tap events, providing the tap offset.
+ * @param onLongPress Lambda function to handle long press events, providing the press offset.
+ * @param onPress Lambda function to handle press events, providing the press offset.
+ * @param onDragging Listener for handling drag events.
  * @param content Composable content to be drawn inside the game object.
  */
 @Keep
@@ -75,13 +79,19 @@ fun GameObject(
     onDragging: OnDraggingListener? = null,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
+    // List to keep track of colliders this game object is currently colliding with
     val collidingWith = remember { mutableStateListOf<Collider<out Shape>>() }
 
-    // Collision detection
+    // Handle collision detection
     collider?.let {
+        if (collider.syncMode == ColliderSyncMode.Auto) {
+            // Automatically update collider properties based on GameObject's position and size
+            collider.update(position, size, anchor)
+        }
         otherColliders?.forEach { other ->
             val isColliding = collider.overlaps(other)
 
+            // Manage collision events
             if (isColliding && !collidingWith.contains(other)) {
                 collidingWith.add(other)
                 onColliding?.onCollidingStart(other)
@@ -94,6 +104,7 @@ fun GameObject(
         }
     }
 
+    // Apply modifications for size, position, scale, and background color
     var newModifier = modifier
         .size(size.width.toDp(), size.height.toDp())
         .offset {
@@ -104,6 +115,7 @@ fun GameObject(
         .scale(scale.x, scale.y)
         .background(color)
 
+    // Handle dragging gestures
     onDragging?.let {
         newModifier = newModifier.pointerInput(Unit) {
             detectDragGestures(
@@ -124,26 +136,36 @@ fun GameObject(
         }
     }
 
+    // Handle tap and press gestures
     if (onTap != null || onDoubleTap != null || onLongPress != null || onPress != null) {
         newModifier = newModifier.pointerInput(Unit) {
-            detectTapGestures(onTap = { offset ->
-                onTap?.invoke(offset)
-            }, onDoubleTap = { offset ->
-                onDoubleTap?.invoke(offset)
-            }, onLongPress = { offset ->
-                onLongPress?.invoke(offset)
-            }, onPress = { offset ->
-                onPress?.invoke(offset)
-            })
+            detectTapGestures(
+                onTap = { offset ->
+                    onTap?.invoke(offset)
+                },
+                onDoubleTap = { offset ->
+                    onDoubleTap?.invoke(offset)
+                },
+                onLongPress = { offset ->
+                    onLongPress?.invoke(offset)
+                },
+                onPress = { offset ->
+                    onPress?.invoke(offset)
+                }
+            )
         }
     }
+
+    // Handle click events
     onClick?.let {
         newModifier = newModifier.clickable(
             onClick = it,
             indication = null,
-            interactionSource = remember { MutableInteractionSource() })
+            interactionSource = remember { MutableInteractionSource() }
+        )
     }
 
+    // Render the game object with the applied modifications
     Box(modifier = newModifier) {
         Box(
             modifier = Modifier
@@ -155,6 +177,12 @@ fun GameObject(
 
 /**
  * Extension function to calculate IntOffset based on GameAnchor.
+ *
+ * @param width Width of the game object.
+ * @param height Height of the game object.
+ * @param offsetX Current x-coordinate position.
+ * @param offsetY Current y-coordinate position.
+ * @return The calculated IntOffset based on the anchor point.
  */
 fun GameAnchor.getIntOffset(width: Float, height: Float, offsetX: Int, offsetY: Int): IntOffset {
     return when (this) {
