@@ -31,6 +31,8 @@ processing input events, and managing audio.
   For example, `CircleCollider` and `RectangleCollider` handle collision detection for circles and
   rectangles respectively.
 - **Shape**: Geometric objects such as `Circle` and `Rectangle` that colliders can encompass.
+- **ColliderSyncMode**: Enum class for synchronizing colliders with game objects, ensuring accurate
+  collision detection.
 
 ### Audio System
 
@@ -145,6 +147,17 @@ GameSprite(
     angle = 0f,
     onClick = { /* Handle click */ }
 )
+
+// Using bitmap
+GameSprite(
+    bitmap = myBitmap,
+    size = GameSize(100f, 100f),
+    position = GameVector(50f, 50f),
+    anchor = GameAnchor.TopLeft,
+    scale = GameScale(1f, 1f),
+    angle = 0f,
+    onClick = { /* Handle click */ }
+)
 ```
 
 #### GameSpace
@@ -214,7 +227,7 @@ collision detection, input events (clicks and dragging), and custom drawing.
 ### `GameSprite`
 
 `GameSprite` is a specialized version of `GameObject` for displaying images. It uses drawable
-resources or asset paths to render sprites and inherits all properties and functionality
+resources, asset paths, or bitmaps to render sprites and inherits all properties and functionality
 from `GameObject`.
 
 **Parameters:**
@@ -222,6 +235,8 @@ from `GameObject`.
 - `resourceId`: The drawable resource ID of the sprite image.
 - `assetPath`: The path to the asset image. If `resourceId` is not provided, this will be used to
   load the image.
+- `bitmap`: The bitmap image to display. If `resourceId` and `assetPath` are not provided, this will
+  be used.
 - `size`: The size of the sprite.
 - `position`: The position of the sprite.
 - `anchor`: The anchor point for positioning.
