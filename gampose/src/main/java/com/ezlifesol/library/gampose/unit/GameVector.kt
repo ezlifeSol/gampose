@@ -83,6 +83,19 @@ open class GameVector(
      */
     operator fun div(amount: Float) = GameVector(x / amount, y / amount)
 
+    override fun equals(other: Any?): Boolean {
+        if (other is GameVector) {
+            return this.x == other.x && this.y == other.y
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        return result
+    }
+
     /**
      * Creates a copy of this GameVector with optional new x and y values.
      * @param x New x value (default is the current x value).
