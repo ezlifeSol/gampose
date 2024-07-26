@@ -23,9 +23,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import com.ezlifesol.library.gampose.collision.OnCollidingListener
 import com.ezlifesol.library.gampose.collision.collider.Collider
-import com.ezlifesol.library.gampose.collision.collider.ColliderSyncMode
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.input.OnDraggingListener
+import com.ezlifesol.library.gampose.physic.GamePhysic
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameScale
 import com.ezlifesol.library.gampose.unit.GameSize
@@ -68,6 +68,7 @@ fun GameObject(
     scale: GameScale = GameScale.default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
+    physic: GamePhysic? = null,
     collider: Collider<out Shape>? = null,
     otherColliders: Array<Collider<out Shape>>? = null,
     onColliding: OnCollidingListener? = null,
@@ -79,12 +80,14 @@ fun GameObject(
     onDragging: OnDraggingListener? = null,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
+    val gameState = LocalGameState.current
+
     // List to keep track of colliders this game object is currently colliding with
     val collidingWith = remember { mutableStateListOf<Collider<out Shape>>() }
 
     // Handle collision detection
     collider?.let {
-        if (collider.syncMode == ColliderSyncMode.Auto) {
+        if (collider.syncMode == Collider.SyncMode.Auto) {
             // Automatically update collider properties based on GameObject's position and size
             collider.update(position, size, anchor)
         }
@@ -104,6 +107,12 @@ fun GameObject(
         }
     }
 
+    physic?.let {
+        physic.collider = collider
+        physic.position = position
+        physic.update(gameState.deltaTime, otherColliders)
+    }
+
     // Apply modifications for size, position, scale, and background color
     var newModifier = modifier
         .size(size.width.toDp(), size.height.toDp())
@@ -120,12 +129,15 @@ fun GameObject(
         newModifier = newModifier.pointerInput(Unit) {
             detectDragGestures(
                 onDragStart = { dragAmount ->
+                    physic?.enablePhysic = false
                     onDragging.onDragStart(GameVector(dragAmount.x, dragAmount.y))
                 },
                 onDragEnd = {
+                    physic?.enablePhysic = true
                     onDragging.onDragEnd()
                 },
                 onDragCancel = {
+                    physic?.enablePhysic = true
                     onDragging.onDragCancel()
                 },
                 onDrag = { change, dragAmount ->

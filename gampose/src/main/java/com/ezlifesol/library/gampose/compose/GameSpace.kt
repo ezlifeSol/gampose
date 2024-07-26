@@ -4,14 +4,15 @@ import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -21,7 +22,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.ezlifesol.library.gampose.unit.GameSize
-import kotlin.math.roundToInt
+
+// Define CompositionLocal for GameState
+val LocalGameState = staticCompositionLocalOf { GameState() }
 
 /**
  * GameSpace is a Composable function that provides a game loop and rendering environment.
@@ -40,74 +43,82 @@ fun GameSpace(
     onDraw: (DrawScope.() -> Unit) = {},
     onUpdate: @Composable GameScope.() -> Unit,
 ) {
-    // Create a GameScope instance to hold game-related data.
-    val gameScope = remember {
-        object : GameScope {
-            override var gameTime: Float = 0f
-            override var gameSize: GameSize = GameSize(0f, 0f)
-            override var deltaTime: Float = 0f
-        }
-    }
+    // Create a GameState instance to hold game-related data
+    val gameState = remember { GameState() }
 
-    // State variables for tracking time and game frame information.
+    // State variables for tracking time and game frame information
     var prevDeltaMillisTime by remember { mutableLongStateOf(0L) }
-    var deltaMillisTime by remember { mutableLongStateOf(0L) }
-    var gameTime by remember { mutableLongStateOf(0L) }
-    var gameFrame by remember { mutableIntStateOf(0) }
     var gameSize by remember { mutableStateOf(GameSize(0f, 0f)) }
     var isStarted by remember { mutableStateOf(false) }
     var isLoadedScreen by remember { mutableStateOf(false) }
-
-    // State variable to track the active status of the application.
     var isActive by remember { mutableStateOf(true) }
 
-    // Container for the game space, with layout and size calculations.
-    Box(modifier = modifier.onGloballyPositioned {
-        gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
-        isLoadedScreen = true
-    }) {
-        // Main game loop that calculates time and frame rate.
-        LaunchedEffect(Unit) {
-            while (true) {
-                withFrameMillis { frameTimeMillis ->
-                    if (prevDeltaMillisTime == 0L) {
+    CompositionLocalProvider(LocalGameState provides gameState) {
+
+        // Container for the game space, with layout and size calculations
+        Box(modifier = modifier.onGloballyPositioned {
+            gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
+            isLoadedScreen = true
+        }) {
+            // Main game loop that calculates time and frame rate
+            LaunchedEffect(Unit) {
+                while (true) {
+                    withFrameMillis { frameTimeMillis ->
+                        if (prevDeltaMillisTime == 0L) {
+                            prevDeltaMillisTime = frameTimeMillis
+                        }
+                        val deltaMillisTime = frameTimeMillis - prevDeltaMillisTime
+                        gameState.deltaTime = deltaMillisTime / 1000f
+                        gameState.gameTime += gameState.deltaTime
+                        gameState.gameSize = gameSize
                         prevDeltaMillisTime = frameTimeMillis
                     }
-                    deltaMillisTime = frameTimeMillis - prevDeltaMillisTime
-                    gameTime += deltaMillisTime
-                    prevDeltaMillisTime = frameTimeMillis
-
-                    gameFrame = (1 / (deltaMillisTime / 1000f)).roundToInt()
                 }
             }
+
+            // Update game state and trigger game events
+            if (isLoadedScreen && isActive) {
+                val gameScope = remember {
+                    object : GameScope {
+                        override var gameTime: Float
+                            get() = gameState.gameTime
+                            set(value) {
+                                gameState.gameTime = value
+                            }
+                        override var gameSize: GameSize
+                            get() = gameState.gameSize
+                            set(value) {
+                                gameState.gameSize = value
+                            }
+                        override var deltaTime: Float
+                            get() = gameState.deltaTime
+                            set(value) {
+                                gameState.deltaTime = value
+                            }
+                    }
+                }
+                if (!isStarted) {
+                    gameScope.onStart()
+                    isStarted = true
+                }
+                gameScope.onUpdate()
+                Spacer(modifier.drawBehind(onDraw))
+            }
         }
 
-        // Update game state and trigger game events.
-        if (isLoadedScreen && isActive) {
-            gameScope.gameSize = gameSize
-            gameScope.gameTime = gameTime / 1000f
-            gameScope.deltaTime = deltaMillisTime / 1000f
-            if (!isStarted) {
-                gameScope.onStart()
-                isStarted = true
+        // Listen to lifecycle events to update the active status
+        val lifecycleOwner = LocalLifecycleOwner.current
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                isActive = event != Lifecycle.Event.ON_STOP
+                if (event == Lifecycle.Event.ON_STOP) {
+                    prevDeltaMillisTime = 0L
+                }
             }
-            gameScope.onUpdate()
-            Spacer(modifier.drawBehind(onDraw))
-        }
-    }
-
-    // Listen to lifecycle events to update the active status.
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            isActive = event != Lifecycle.Event.ON_STOP
-            if (isActive.not()) {
-                prevDeltaMillisTime = 0L
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
             }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 }
@@ -119,4 +130,13 @@ interface GameScope {
     var gameTime: Float
     var gameSize: GameSize
     var deltaTime: Float
+}
+
+/**
+ * GameState holds global game state information.
+ */
+class GameState {
+    var gameTime: Float = 0f
+    var gameSize: GameSize = GameSize(0f, 0f)
+    var deltaTime: Float = 0f
 }

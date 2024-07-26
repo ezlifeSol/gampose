@@ -12,9 +12,12 @@ import androidx.compose.ui.unit.Dp
  * - Contains width and height dimensions.
  * - Provides a method to calculate the area of the size.
  * - Supports addition, subtraction, multiplication, and division operations with both other GameSize instances and float values.
+ *
+ * @property width The width dimension of the size.
+ * @property height The height dimension of the size.
  */
 @Keep
-class GameSize(val width: Float, val height: Float) {
+open class GameSize(val width: Float, val height: Float) {
 
     companion object {
         // Defines a constant zero size.
@@ -33,6 +36,14 @@ class GameSize(val width: Float, val height: Float) {
     override fun toString(): String {
         return "[$width, $height]"
     }
+
+    /**
+     * Creates a copy of this GameSize with optional new width and height values.
+     * @param width New width value (default is the current width value).
+     * @param height New height value (default is the current height value).
+     * @return A new GameSize instance with the specified width and height values.
+     */
+    fun copy(width: Float = this.width, height: Float = this.height) = GameSize(width, height)
 
     /**
      * Adds two GameSize instances together component-wise.

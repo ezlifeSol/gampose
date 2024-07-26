@@ -13,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.ezlifesol.demo.gamposedemo.R
+import com.ezlifesol.library.gampose.collision.collider.CapsuleCollider
 import com.ezlifesol.library.gampose.collision.collider.CircleCollider
 import com.ezlifesol.library.gampose.collision.collider.Collider
-import com.ezlifesol.library.gampose.collision.collider.RectangleCollider
 import com.ezlifesol.library.gampose.collision.detectColliding
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.compose.GameObject
@@ -178,7 +178,7 @@ fun GalaxyScreen() {
 
                     if (it != GameVector.zero && gameTime > nextBulletSpawn) {
                         val bulletPosition = GameVector(playerPosition.x, playerPosition.y - 50f)
-                        val bulletCollider = RectangleCollider.create(name = "Bullet")
+                        val bulletCollider = CapsuleCollider.create(name = "Bullet")
                         bulletInfos.add(ObjectInfo(bulletPosition, bulletCollider))
                         AudioManager.playSound(R.raw.player_shot)
                         nextBulletSpawn = gameTime + bulletSpawnRate

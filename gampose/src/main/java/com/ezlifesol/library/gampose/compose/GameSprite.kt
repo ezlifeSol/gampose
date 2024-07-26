@@ -16,6 +16,7 @@ import com.ezlifesol.library.gampose.collision.collider.Collider
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.input.OnDraggingListener
 import com.ezlifesol.library.gampose.media.image.ImageManager
+import com.ezlifesol.library.gampose.physic.GamePhysic
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameScale
 import com.ezlifesol.library.gampose.unit.GameSize
@@ -54,6 +55,7 @@ fun GameSprite(
     scale: GameScale = GameScale.default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
+    physic: GamePhysic? = null,
     collider: Collider<out Shape>? = null,
     otherColliders: Array<Collider<out Shape>>? = null,
     onColliding: OnCollidingListener? = null,
@@ -73,6 +75,7 @@ fun GameSprite(
         angle = angle,
         scale = scale,
         color = color,
+        physic = physic,
         collider = collider,
         otherColliders = otherColliders,
         onColliding = onColliding,
@@ -124,6 +127,7 @@ fun GameSprite(
     scale: GameScale = GameScale.default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
+    physic: GamePhysic? = null,
     collider: Collider<out Shape>? = null,
     otherColliders: Array<Collider<out Shape>>? = null,
     onColliding: OnCollidingListener? = null,
@@ -148,6 +152,7 @@ fun GameSprite(
         angle = angle,
         scale = scale,
         color = color,
+        physic = physic,
         collider = collider,
         otherColliders = otherColliders,
         onColliding = onColliding,
@@ -192,6 +197,7 @@ fun GameSprite(
     scale: GameScale = GameScale.default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
+    physic: GamePhysic? = null,
     collider: Collider<out Shape>? = null,
     otherColliders: Array<Collider<out Shape>>? = null,
     onColliding: OnCollidingListener? = null,
@@ -211,6 +217,7 @@ fun GameSprite(
         angle = angle,
         scale = scale,
         color = color,
+        physic = physic,
         collider = collider,
         otherColliders = otherColliders,
         onColliding = onColliding,

@@ -40,3 +40,21 @@ data class Circle(
     var centerY: Float,
     var radius: Float
 ) : Shape
+
+/**
+ * Capsule represents a capsule shape defined by its two circular ends and a rectangular middle.
+ *
+ * @property startX The x-coordinate of the center of the start circle.
+ * @property startY The y-coordinate of the center of the start circle.
+ * @property endX The x-coordinate of the center of the end circle.
+ * @property endY The y-coordinate of the center of the end circle.
+ * @property radius The radius of the capsule's circles.
+ */
+@Keep
+data class Capsule(
+    var startX: Float,
+    var startY: Float,
+    var endX: Float,
+    var endY: Float,
+    var radius: Float
+) : Shape

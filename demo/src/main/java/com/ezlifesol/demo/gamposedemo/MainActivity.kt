@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.ezlifesol.demo.gamposedemo.game.GalaxyScreen
+import com.ezlifesol.demo.gamposedemo.game.PhysicScreen
 import com.ezlifesol.library.gampose.media.audio.AudioManager
 
 @SuppressLint("SourceLockedOrientationActivity")
@@ -32,8 +32,10 @@ class MainActivity : ComponentActivity() {
             }
 //            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 //            DinoScreen()
+//            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+//            GalaxyScreen()
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-            GalaxyScreen()
+            PhysicScreen()
         }
     }
 

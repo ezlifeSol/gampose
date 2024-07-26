@@ -12,9 +12,12 @@ import androidx.annotation.Keep
  *   - `reverseX`: Represents a scale factor of -1 for the x axis and 1 for the y axis (horizontal flip).
  *   - `reverseY`: Represents a scale factor of 1 for the x axis and -1 for the y axis (vertical flip).
  *   - `reverseAll`: Represents a scale factor of -1 for both x and y axes (180-degree rotation).
+ *
+ * @property x The scale factor along the x-axis.
+ * @property y The scale factor along the y-axis.
  */
 @Keep
-data class GameScale(
+open class GameScale(
     val x: Float,
     val y: Float
 ) {
@@ -32,4 +35,12 @@ data class GameScale(
         // Scale factor for flipping both horizontally and vertically.
         val reverseAll = GameScale(-1f, -1f)
     }
+
+    /**
+     * Creates a copy of this GameScale with optional new x and y values.
+     * @param x New x value (default is the current x value).
+     * @param y New y value (default is the current y value).
+     * @return A new GameScale instance with the specified x and y values.
+     */
+    fun copy(x: Float = this.x, y: Float = this.y) = GameScale(x, y)
 }

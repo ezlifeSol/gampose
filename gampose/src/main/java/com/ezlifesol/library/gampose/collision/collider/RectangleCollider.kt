@@ -20,14 +20,29 @@ import com.ezlifesol.library.gampose.unit.GameVector
  */
 @Keep
 class RectangleCollider(
-    override var name: String,
-    override var syncMode: ColliderSyncMode,
+    override var name: String, override var syncMode: Collider.SyncMode
 ) : Collider<Rectangle> {
 
-    // The shape of the collider, initially set to null.
+    /**
+     * The shape of the collider, which is a Rectangle. Initially set to null.
+     */
     override var shape: Rectangle? = null
+
+    /**
+     * The size of the collider, represented by GameSize.
+     */
     override var size: GameSize? = null
+
+    /**
+     * The anchor point of the collider, represented by GameAnchor.
+     * This determines the reference point for positioning the collider.
+     */
     override var anchor: GameAnchor? = null
+
+    /**
+     * A boolean indicating whether this collider can be involved in physical collisions with other colliders.
+     */
+    override var isCollided: Boolean = false
 
     companion object {
         /**
@@ -38,11 +53,9 @@ class RectangleCollider(
          * @return A RectangleCollider instance with the specified parameters.
          */
         fun create(
-            name: String,
-            syncMode: ColliderSyncMode = ColliderSyncMode.Auto
+            name: String, syncMode: Collider.SyncMode = Collider.SyncMode.Auto
         ): RectangleCollider {
-            val collider = RectangleCollider(name, syncMode)
-            return collider
+            return RectangleCollider(name, syncMode)
         }
     }
 
@@ -52,19 +65,20 @@ class RectangleCollider(
      * Calculates the position of the rectangle using the anchor and updates the
      * rectangle's dimensions based on the size.
      *
-     * @param position The new position of the collider.
-     * @param size The new size of the collider.
-     * @param anchor The new anchor point of the collider.
+     * @param position The new position of the collider, represented by GameVector.
+     * @param size The new size of the collider, represented by GameSize.
+     * @param anchor The new anchor point of the collider, represented by GameAnchor.
      * @return The updated Rectangle shape of the collider.
      */
     override fun update(position: GameVector, size: GameSize, anchor: GameAnchor): Rectangle? {
-        val intOffset = anchor.getIntOffset(size.width, size.height, position.x.toInt(), position.y.toInt())
+        val intOffset =
+            anchor.getIntOffset(size.width, size.height, position.x.toInt(), position.y.toInt())
 
         shape = Rectangle(
             left = intOffset.x.toFloat(),
             top = intOffset.y.toFloat(),
             right = intOffset.x.toFloat() + size.width,
-            bottom = intOffset.y.toFloat() + size.height,
+            bottom = intOffset.y.toFloat() + size.height
         )
         return shape
     }
@@ -74,15 +88,18 @@ class RectangleCollider(
      *
      * The method dispatches the overlap check to specific implementations based on the type of the other collider.
      *
-     * @param other The other collider to check for overlap.
+     * @param other The other collider to check for overlap. It can be of any subtype of Shape.
      * @return True if there is an overlap, false otherwise.
      */
     override fun overlaps(other: Collider<out Shape>?): Boolean {
-        return when (other) {
+        val collision = when (other) {
             is RectangleCollider -> overlaps(other)
             is CircleCollider -> overlaps(other)
+            is CapsuleCollider -> overlaps(other)
             else -> false
         }
+        isCollided = collision
+        return collision
     }
 
     /**
@@ -101,10 +118,24 @@ class RectangleCollider(
     /**
      * Checks if this RectangleCollider overlaps with a CircleCollider.
      *
-     * @param circle The CircleCollider to check for overlap.
+     * This method is delegated to the CircleCollider's overlap check method.
+     *
+     * @param other The CircleCollider to check for overlap.
      * @return True if the rectangle overlaps with the circle, false otherwise.
      */
-    private fun overlaps(circle: CircleCollider): Boolean {
-        return circle.overlaps(this)
+    private fun overlaps(other: CircleCollider): Boolean {
+        return other.overlaps(this)
+    }
+
+    /**
+     * Checks if this RectangleCollider overlaps with a CapsuleCollider.
+     *
+     * This method is delegated to the CapsuleCollider's overlap check method.
+     *
+     * @param other The CapsuleCollider to check for overlap.
+     * @return True if the rectangle overlaps with the capsule, false otherwise.
+     */
+    private fun overlaps(other: CapsuleCollider): Boolean {
+        return other.overlaps(this)
     }
 }

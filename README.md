@@ -28,10 +28,12 @@ processing input events, and managing audio.
 ### Colliders and Shapes
 
 - **Collider**: Objects that can handle collisions and check for intersections between game objects.
-  For example, `CircleCollider` and `RectangleCollider` handle collision detection for circles and
-  rectangles respectively.
-- **Shape**: Geometric objects such as `Circle` and `Rectangle` that colliders can encompass.
-- **ColliderSyncMode**: Enum class for synchronizing colliders with game objects, ensuring accurate
+  For example, `CircleCollider`, `RectangleCollider`, and `CapsuleCollider` handle collision
+  detection
+  for circles, rectangles, and capsules respectively.
+- **Shape**: Geometric objects such as `Circle`, `Rectangle`, and `Capsule` that colliders can
+  encompass.
+- **Collider.SyncMode**: Enum class for synchronizing colliders with game objects, ensuring accurate
   collision detection.
 
 ### Audio System

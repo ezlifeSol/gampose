@@ -3,13 +3,14 @@ package com.ezlifesol.library.gampose.unit
 import androidx.annotation.Keep
 
 /**
- * GameVector is a class representing a 2-dimensional vector with x and y coordinates.
+ * GameVector represents a 2-dimensional vector with x and y coordinates.
  *
  * Main features:
  * - Contains x and y coordinates.
- * - Provides a constant zero vector for initialization.
- * - Overrides toString() to represent the vector in [x,y] format.
- * - Supports addition, subtraction, multiplication, and division operators for vector arithmetic.
+ * - Provides constant vectors for common directions (zero, up, down, left, right).
+ * - Overrides `toString()` to represent the vector in [x, y] format.
+ * - Supports arithmetic operations including addition, subtraction, multiplication, and division.
+ * - Allows scalar operations where the vector components are modified by a scalar value.
  */
 @Keep
 open class GameVector(
@@ -18,13 +19,17 @@ open class GameVector(
 ) {
 
     companion object {
-        // Defines a constant zero vector for GameVector.
+        // Defines constant vectors for common directions.
         val zero = GameVector(0f, 0f)
+        val up = GameVector(0f, -1f)
+        val down = GameVector(0f, 1f)
+        val left = GameVector(-1f, 0f)
+        val right = GameVector(1f, 0f)
     }
 
-    // Returns a string representation of the vector in the format "[x,y]".
+    // Returns a string representation of the vector in the format "[x, y]".
     override fun toString(): String {
-        return "[$x,$y]"
+        return "[$x, $y]"
     }
 
     /**
@@ -60,28 +65,28 @@ open class GameVector(
      * @param amount A float value to add to both x and y components.
      * @return A new GameVector instance representing the result of the addition.
      */
-    operator fun plus(amount: Float) = GameVector(x + amount, y + amount)
+    open operator fun plus(amount: Float) = GameVector(x + amount, y + amount)
 
     /**
      * Subtracts a scalar value from both components of the GameVector.
      * @param amount A float value to subtract from both x and y components.
      * @return A new GameVector instance representing the result of the subtraction.
      */
-    operator fun minus(amount: Float) = GameVector(x - amount, y - amount)
+    open operator fun minus(amount: Float) = GameVector(x - amount, y - amount)
 
     /**
      * Multiplies both components of the GameVector by a scalar value.
      * @param amount A float value to multiply with both x and y components.
      * @return A new GameVector instance representing the result of the multiplication.
      */
-    operator fun times(amount: Float) = GameVector(x * amount, y * amount)
+    open operator fun times(amount: Float) = GameVector(x * amount, y * amount)
 
     /**
      * Divides both components of the GameVector by a scalar value.
      * @param amount A float value to divide both x and y components.
      * @return A new GameVector instance representing the result of the division.
      */
-    operator fun div(amount: Float) = GameVector(x / amount, y / amount)
+    open operator fun div(amount: Float) = GameVector(x / amount, y / amount)
 
     /**
      * Creates a copy of this GameVector with optional new x and y values.

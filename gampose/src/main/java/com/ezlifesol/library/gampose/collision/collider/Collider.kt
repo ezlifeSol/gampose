@@ -27,7 +27,7 @@ interface Collider<S> where S : Shape {
      * The synchronization mode for the collider, which determines whether its properties are
      * automatically or manually synchronized with the GameObject.
      */
-    var syncMode: ColliderSyncMode
+    var syncMode: SyncMode
 
     /**
      * The size of the collider, represented by GameSize.
@@ -47,6 +47,11 @@ interface Collider<S> where S : Shape {
     var shape: S?
 
     /**
+     * A boolean indicating whether this collider can be involved in physical collisions with other colliders.
+     */
+    var isCollided: Boolean
+
+    /**
      * Updates the shape of the collider based on the given position, size, and anchor.
      *
      * @param position The new position of the collider, represented by GameVector.
@@ -63,24 +68,24 @@ interface Collider<S> where S : Shape {
      * @return True if the colliders overlap, false otherwise.
      */
     fun overlaps(other: Collider<out Shape>?): Boolean
-}
-
-/**
- * Enum representing the synchronization modes for a collider.
- *
- * This enum defines how a collider's properties (such as position, size, and anchor) are updated.
- * - Auto: The collider automatically syncs its properties with the GameObject.
- * - Manual: The developer must manually update the collider's properties.
- */
-enum class ColliderSyncMode {
-    /**
-     * Auto sync mode, which automatically updates the collider's properties
-     * to match the GameObject's properties.
-     */
-    Auto,
 
     /**
-     * Manual sync mode, which requires the developer to manually update the collider's properties.
+     * Enum representing the synchronization modes for a collider.
+     *
+     * This enum defines how a collider's properties (such as position, size, and anchor) are updated.
+     * - Auto: The collider automatically syncs its properties with the GameObject.
+     * - Manual: The developer must manually update the collider's properties.
      */
-    Manual
+    enum class SyncMode {
+        /**
+         * Auto sync mode, which automatically updates the collider's properties
+         * to match the GameObject's properties.
+         */
+        Auto,
+
+        /**
+         * Manual sync mode, which requires the developer to manually update the collider's properties.
+         */
+        Manual
+    }
 }
