@@ -20,6 +20,7 @@ open class GameVector(
     companion object {
         // Defines a constant zero vector for GameVector.
         val zero = GameVector(0f, 0f)
+        val infinity = GameVector(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
     }
 
     // Returns a string representation of the vector in the format "[x,y]".

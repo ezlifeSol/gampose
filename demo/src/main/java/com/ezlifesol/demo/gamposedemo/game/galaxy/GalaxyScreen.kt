@@ -27,6 +27,7 @@ import com.ezlifesol.demo.gamposedemo.R
 import com.ezlifesol.demo.gamposedemo.game.galaxy.obj.Bullet
 import com.ezlifesol.demo.gamposedemo.game.galaxy.obj.Enemy
 import com.ezlifesol.demo.gamposedemo.game.galaxy.obj.Player
+import com.ezlifesol.demo.gamposedemo.game.galaxy.obj.Shield
 import com.ezlifesol.library.gampose.collision.collider.CircleCollider
 import com.ezlifesol.library.gampose.collision.collider.RectangleCollider
 import com.ezlifesol.library.gampose.collision.detectColliding
@@ -67,10 +68,20 @@ fun GalaxyScreen() {
         )
     }
 
+    var shieldTime by remember { mutableFloatStateOf(0f) }
+    val shieldEffectRate = 0.02f
+    val shieldSprites = remember {
+        ImageManager.splitSprite(context, "galaxy/player_shield.webp", 5, 4)
+    }
+    val shield by remember {
+        val collider = CircleCollider.create("Shield")
+        mutableStateOf(Shield(player.position, collider))
+    }
+
     // Enemy settings
     val enemySpawnRate = 1f
     var nextEnemySpawn by remember { mutableFloatStateOf(0f) }
-    val enemySprite = ImageManager.getBitmap(context, "galaxy/enemy.webp")
+    val enemySprite = remember { ImageManager.getBitmap(context, "galaxy/enemy.webp") }
     val enemies = remember { mutableStateListOf<Enemy>() }
 
     // Explosion settings
@@ -105,15 +116,24 @@ fun GalaxyScreen() {
                 anchor = bullet.anchor,
                 collider = bullet.collider,
                 angle = bullet.angle,
-                otherColliders = player.collider?.let { arrayOf(it) },
+                otherColliders = player.collider?.let { arrayOf(it, shield.collider) },
                 onColliding = detectColliding(onCollidingStart = { other ->
-                    if (other.name == "Player") {
-                        player.isAlive = false
-                        player.collider = null
+                    when (other.name) {
+                        player.collider?.name -> {
+                            if (player.isShield) return@detectColliding
+                            player.isAlive = false
+                            player.collider = null
 
-                        bullet.position.y = gameSize.height + bullet.size.height
+                            bullet.position.y = gameSize.height + bullet.size.height
 
-                        AudioManager.playSound(R.raw.enemy_exp)
+                            AudioManager.playSound(R.raw.enemy_exp)
+                        }
+
+                        shield.collider.name -> {
+                            if (player.isShield.not()) return@detectColliding
+                            bullet.position.y = gameSize.height + bullet.size.height
+                            AudioManager.playSound(R.raw.enemy_hit)
+                        }
                     }
                 })
             )
@@ -136,8 +156,7 @@ fun GalaxyScreen() {
             if (enemy.explosionStep < explosionSprites.size) {
                 if (gameTime > nextEnemyBulletSpawn) {
                     val enemyBullet = Bullet(
-                        enemy.position,
-                        CircleCollider.create("Enemy bullet")
+                        enemy.position, CircleCollider.create("Enemy bullet")
                     )
                     enemyBullet.sprite = "galaxy/enemy_bullet.webp"
                     enemyBullets.add(enemyBullet)
@@ -153,7 +172,18 @@ fun GalaxyScreen() {
                     size = if (enemy.isDestroy) enemy.size * 2f else enemy.size,
                     position = enemy.position,
                     collider = enemy.collider,
-                    anchor = GameAnchor.Center
+                    otherColliders = arrayOf(shield.collider),
+                    anchor = GameAnchor.Center,
+                    onColliding = detectColliding(
+                        onCollidingStart = { other ->
+                            if (other.name == "Shield") {
+                                if (player.isShield.not()) return@detectColliding
+                                score++
+                                enemy.isDestroy = true
+                                AudioManager.playSound(R.raw.enemy_exp)
+                            }
+                        }
+                    )
                 )
             }
         }
@@ -195,12 +225,32 @@ fun GalaxyScreen() {
                 otherColliders = enemies.map { it.collider }.toTypedArray(),
                 onColliding = detectColliding(onCollidingStart = { other ->
                     if (other.name == "Enemy") {
+                        if (player.isShield) return@detectColliding
                         player.isAlive = false
                         AudioManager.playSound(R.raw.enemy_exp)
                     }
                 }),
                 anchor = GameAnchor.Center
             )
+            if (player.isShield) {
+                var nextShield by remember { mutableFloatStateOf(0f) }
+                shield.position =
+                    GameVector(player.position.x, player.position.y + player.size.height * 0.25f)
+                if (gameTime > nextShield) {
+                    GameSprite(
+                        bitmap = shieldSprites[shield.step % shieldSprites.size],
+                        size = shield.size,
+                        position = shield.position,
+                        collider = shield.collider,
+                        anchor = shield.anchor
+                    )
+                    shield.step++
+                    nextShield = gameTime + shieldEffectRate
+                }
+                if (nextShield > shieldTime) {
+                    player.isShield = false
+                }
+            }
         }
 
         // Render bullets
@@ -215,6 +265,8 @@ fun GalaxyScreen() {
                 otherColliders = enemies.map { it.collider }.toTypedArray(),
                 onColliding = detectColliding(onCollidingStart = { other ->
                     if (other.name == "Enemy") {
+                        shieldTime = gameTime + 10f
+                        player.isShield = true
                         val enemy = enemies.find { it.collider == other }
                         enemy?.let {
                             it.health--
