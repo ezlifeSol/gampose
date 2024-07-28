@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
 //        AudioManager.registerSounds(this, R.raw.dino_die, R.raw.dino_jump, R.raw.dino_point)
-//        AudioManager.playMusic(this, R.raw.music, loop = true)
+        AudioManager.playMusic(this, R.raw.music, loop = true)
         AudioManager.registerSounds(this, R.raw.player_shot, R.raw.enemy_hit, R.raw.enemy_exp)
 
         val viewModel by viewModels<MainViewModel>()

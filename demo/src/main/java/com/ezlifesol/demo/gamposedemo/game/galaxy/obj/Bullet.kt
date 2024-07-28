@@ -8,9 +8,10 @@ import com.ezlifesol.library.gampose.unit.GameVector
 
 data class Bullet(
     var position: GameVector,
-    var collider: Collider<out Shape>?
+    var collider: Collider<out Shape>
 ) {
-    val sprite = "galaxy/player_bullet.webp"
+    var sprite = "galaxy/player_bullet.webp"
     val size = GameSize(36f, 68f)
     val anchor = GameAnchor.Center
+    var angle = 0f
 }
