@@ -59,20 +59,20 @@ processing input events, and managing audio.
 
 ### GameVision
 
-- **GameVision**: Class that represents the camera or viewport within the game. It defines the
-  position and anchor point of the camera, allowing for manipulation of the game's view.
+- **GameVision**: A class for representing the camera or viewport within the game. It defines the
+  position and anchor point of the camera, with properties for `position` and `anchor`.
     - `position`: Position of the camera.
     - `anchor`: Anchor point of the camera.
 
 ### GameOutfit
 
-- **GameOutfit**: Class that represents the visual styling of the game environment. It allows for
-  customization of the background color and other visual properties of the game space.
+- **GameOutfit**:  A class for representing the visual styling of the game environment. It allows
+  customization of the background color of the game space.
     - `backgroundColor`: Color of the game space background.
 
 ### GameInput
 
-- **GameInput**: A class for handling various input events within the game. It includes:
+- **GameInput**: A class for managing user input events on the game screen. It includes listeners for:
     - `onClick`: Callback for click events.
     - `onTap`: Callback for tap events with `Offset` parameter.
     - `onDoubleTap`: Callback for double-tap events with `Offset` parameter.
