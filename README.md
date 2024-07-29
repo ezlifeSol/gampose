@@ -5,7 +5,7 @@ Compose. It provides a range of tools and components for managing game objects, 
 processing input events, and managing audio.
 
 <img src="https://github.com/ezlifeSol/gampose/blob/main/dino_run.gif" alt="Dino Jumping Over Cactus" width="700"/>
-<img src="https://github.com/ezlifeSol/gampose/blob/main/galaxy.gif" alt="Galaxy Invader" height="700"/>
+<img src="https://github.com/ezlifeSol/gampose/blob/main/galaxy_invader.gif" alt="Galaxy Invader" height="700"/>
 
 ## Features
 
