@@ -8,7 +8,7 @@ import com.ezlifesol.library.gampose.unit.GameVector
 data class Enemy(
     var health: Int,
     var position: GameVector,
-    var collider: Collider<out Shape>
+    var collider: Collider<out Shape>?
 ) {
     val size = GameSize(132f, 144f)
     var isDestroy: Boolean = false

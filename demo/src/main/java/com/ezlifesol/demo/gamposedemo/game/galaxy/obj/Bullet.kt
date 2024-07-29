@@ -11,7 +11,8 @@ data class Bullet(
     var collider: Collider<out Shape>
 ) {
     var sprite = "galaxy/player_bullet.webp"
-    val size = GameSize(36f, 68f)
+    var size = GameSize(36f, 68f)
     val anchor = GameAnchor.Center
     var angle = 0f
+    var step = 0
 }

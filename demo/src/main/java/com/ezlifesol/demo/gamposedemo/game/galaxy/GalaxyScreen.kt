@@ -40,6 +40,7 @@ import com.ezlifesol.library.gampose.media.image.ImageManager
 import com.ezlifesol.library.gampose.unit.GameAnchor
 import com.ezlifesol.library.gampose.unit.GameSize
 import com.ezlifesol.library.gampose.unit.GameVector
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -77,6 +78,7 @@ fun GalaxyScreen() {
         val collider = CircleCollider.create("Shield")
         mutableStateOf(Shield(player.position, collider))
     }
+    val shieldPoints = remember { mutableStateListOf<Bullet>() }
 
     // Enemy settings
     val enemySpawnRate = 1f
@@ -89,7 +91,7 @@ fun GalaxyScreen() {
     val explosionSprites = remember { ImageManager.splitSprite(context, "galaxy/exp.webp", 5, 5) }
 
     // Bullet settings
-    val bulletSpawnRate = 0.3f
+    var bulletSpawnRate = 0.3f
     var nextBulletSpawn by remember { mutableFloatStateOf(0f) }
     val bullets = remember { mutableStateListOf<Bullet>() }
     val enemyBullets = remember { mutableStateListOf<Bullet>() }
@@ -105,6 +107,37 @@ fun GalaxyScreen() {
         )
 
         level = (score / 10) + 1
+
+        shieldPoints.forEach { shieldPoint ->
+            var nextShieldPoint by remember { mutableFloatStateOf(0f) }
+            shieldPoint.position = shieldPoint.position.copy(y = shieldPoint.position.y + (deltaTime * 200f))
+            if (gameTime > nextShieldPoint) {
+                GameSprite(
+                    bitmap = shieldSprites[shieldPoint.step % shieldSprites.size],
+                    position = shieldPoint.position,
+                    size = GameSize(65f, 52f),
+                    anchor = shieldPoint.anchor,
+                    collider = shieldPoint.collider,
+                    otherColliders = player.collider?.let { arrayOf(it) },
+                    onColliding = detectColliding(
+                        onCollidingStart = { other ->
+                            if (other.name == player.collider?.name) {
+                                player.isShield = true
+                                shieldTime = gameTime + 10f
+                                if (bulletSpawnRate <= 0.01f) {
+                                    bulletSpawnRate = 0.01f
+                                } else {
+                                    bulletSpawnRate -= 0.02f
+                                }
+                                shieldPoint.position = shieldPoint.position.copy(y = gameSize.height + shieldPoint.size.height)
+                            }
+                        }
+                    )
+                )
+                shieldPoint.step++
+                nextShieldPoint = gameTime + shieldEffectRate
+            }
+        }
 
         enemyBullets.forEach { bullet ->
             bullet.position = bullet.position.copy(y = bullet.position.y + (deltaTime * 200f))
@@ -159,6 +192,7 @@ fun GalaxyScreen() {
                         enemy.position, CircleCollider.create("Enemy bullet")
                     )
                     enemyBullet.sprite = "galaxy/enemy_bullet.webp"
+                    enemyBullet.size = GameSize(52f, 52f)
                     enemyBullets.add(enemyBullet)
 
                     nextEnemyBulletSpawn = gameTime + Random.nextInt(3, 7)
@@ -196,6 +230,10 @@ fun GalaxyScreen() {
             it.position.y > gameSize.height + it.size.height
         }
 
+        shieldPoints.removeIf {
+            it.position.y > gameSize.height + it.size.height
+        }
+
         // Spawn new enemies outside the screen
         if (gameTime > nextEnemySpawn) {
             val randomX = Random.nextInt(gameSize.width.toInt()).toFloat()
@@ -222,7 +260,7 @@ fun GalaxyScreen() {
                 size = if (!player.isAlive) player.size * 2f else player.size,
                 position = player.position,
                 collider = player.collider,
-                otherColliders = enemies.map { it.collider }.toTypedArray(),
+                otherColliders = enemies.mapNotNull { it.collider }.toTypedArray(),
                 onColliding = detectColliding(onCollidingStart = { other ->
                     if (other.name == "Enemy") {
                         if (player.isShield) return@detectColliding
@@ -253,6 +291,13 @@ fun GalaxyScreen() {
             }
         }
 
+        fun dropShieldPoint(enemy: Enemy) {
+            val shieldPointCollider = CircleCollider.create("Shield Point")
+            val shieldPoint = Bullet(enemy.position, shieldPointCollider)
+            shieldPoint.size = GameSize(52f, 52f)
+            shieldPoints.add(shieldPoint)
+        }
+
         // Render bullets
         bullets.forEach { bullet ->
             bullet.position = bullet.position.copy(y = bullet.position.y - (deltaTime * 1000f))
@@ -262,11 +307,9 @@ fun GalaxyScreen() {
                 position = bullet.position,
                 anchor = bullet.anchor,
                 collider = bullet.collider,
-                otherColliders = enemies.map { it.collider }.toTypedArray(),
+                otherColliders = enemies.mapNotNull { it.collider }.toTypedArray(),
                 onColliding = detectColliding(onCollidingStart = { other ->
                     if (other.name == "Enemy") {
-                        shieldTime = gameTime + 10f
-                        player.isShield = true
                         val enemy = enemies.find { it.collider == other }
                         enemy?.let {
                             it.health--
@@ -274,8 +317,15 @@ fun GalaxyScreen() {
                         if (enemy?.health == 0) {
                             score++
                             enemy.isDestroy = true
+                            enemy.collider = null
                             AudioManager.playSound(R.raw.enemy_exp)
+
+                            val random = Random.nextInt(0, 5)
+                            if (random == 0) {
+                                dropShieldPoint(enemy)
+                            }
                         }
+                        AudioManager.playSound(R.raw.enemy_hit)
                         bullet.position.y = -1000f
                     }
                 })
@@ -292,10 +342,12 @@ fun GalaxyScreen() {
             )
         )
 
+        val shieldText = String.format(Locale.getDefault(), "%.1f", shieldTime - gameTime)
         Text(
             text = """
             Level: $level
             Score: $score
+            ${if (shieldText <= "0") "" else "Shield: $shieldText"}
         """.trimIndent(),
             modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp),
             color = Color.White,
@@ -317,11 +369,11 @@ fun GalaxyScreen() {
         }, onDragging = detectDragging(onDrag = { _, direction ->
             if (player.isAlive) {
                 player.sprite = when {
-                    direction.x > 0.3f -> "galaxy/player_right.webp"
-                    direction.x < -0.3f -> "galaxy/player_left.webp"
+                    direction.x > 0.8f -> "galaxy/player_right.webp"
+                    direction.x < -0.8f -> "galaxy/player_left.webp"
                     else -> "galaxy/player.webp"
                 }
-                player.position += direction * deltaTime * 100f
+                player.position += direction * deltaTime * 150f
 
                 if (gameTime > nextBulletSpawn) {
                     fireBullet()
@@ -333,7 +385,7 @@ fun GalaxyScreen() {
 
 
         if (player.isAlive.not()) {
-            BasicAlertDialog(onDismissRequest = { /*TODO*/ }) {
+            BasicAlertDialog(onDismissRequest = { }) {
                 Surface(
                     shape = MaterialTheme.shapes.large
                 ) {
@@ -350,11 +402,13 @@ fun GalaxyScreen() {
                         )
 
                         TextButton(onClick = {
+                            shieldPoints.clear()
                             bullets.clear()
                             enemyBullets.clear()
                             enemies.clear()
                             score = 0
                             playerExplosionStep = 0
+                            bulletSpawnRate = 0.3f
                             player.apply {
                                 isAlive = true
                                 position = GameVector(gameSize.width / 2, gameSize.height - 400f)
