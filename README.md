@@ -24,6 +24,8 @@ processing input events, and managing audio.
   clicking.
 - **GameSprite**: A specialized `GameObject` used to display images. It supports displaying images
   from drawable resources or asset paths.
+- **GameAnimSprite**: An advanced `GameObject` for displaying animated sprites. It supports
+  animations from sprite sheets or bitmaps, looping, and various interactive events.
 
 ### Colliders and Shapes
 
@@ -93,7 +95,7 @@ Add the following to your `build.gradle` file:
 
 ```gradle
 dependencies {
-    implementation 'com.github.ezlifeSol:gampose:1.2.0'
+    implementation 'com.github.ezlifeSol:gampose:1.3.0'
 }
 ```
 
@@ -101,7 +103,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("com.github.ezlifeSol:gampose:1.2.0")
+    implementation("com.github.ezlifeSol:gampose:1.3.0")
 }
 ```
 
@@ -156,6 +158,34 @@ GameSprite(
     anchor = GameAnchor.TopLeft,
     scale = GameScale(1f, 1f),
     angle = 0f,
+    onClick = { /* Handle click */ }
+)
+```
+
+#### GameAnimSprite
+
+```kotlin
+// Using sprite sheets
+GameAnimSprite(
+    assetPath = "images/example_spritesheet.png",
+    col = 4,
+    row = 4,
+    step = 0.1f,
+    size = GameSize(100f, 100f),
+    position = GameVector(50f, 50f),
+    anchor = GameAnchor.TopLeft,
+    loop = true,
+    onClick = { /* Handle click */ }
+)
+
+// Using bitmaps
+GameAnimSprite(
+    bitmaps = listOf(bitmapFrame1, bitmapFrame2, bitmapFrame3),
+    step = 0.1f,
+    size = GameSize(100f, 100f),
+    position = GameVector(50f, 50f),
+    anchor = GameAnchor.TopLeft,
+    loop = true,
     onClick = { /* Handle click */ }
 )
 ```
@@ -243,6 +273,41 @@ from `GameObject`.
 - `scale`: The scale of the sprite.
 - `angle`: The rotation angle of the sprite.
 - `color`: The color of the sprite.
+- `collider`: Optional collider for collision detection.
+- `otherColliders`: Optional array of other colliders to check for collisions.
+- `onColliding`: Optional listener for collision events.
+- `onClick`: Optional callback for click events.
+- `onTap`: Optional callback for tap events.
+- `onDoubleTap`: Optional callback for double-tap events.
+- `onLongPress`: Optional callback for long press events.
+- `onPress`: Optional callback for press events.
+- `onDragging`: Optional listener for dragging events.
+
+### `GameAnimSprite`
+
+`GameAnimSprite` is a versatile extension of `GameObject` for displaying animated sprites using
+sprite sheets. It supports both sprite sheets (using `assetPath`) and direct bitmaps for animations.
+This function is ideal for rendering frame-by-frame animations, handling looping, and updating
+frames based on elapsed time.
+
+**Parameters:**
+
+- `assetPath`: The path to the sprite sheet asset image if using sprite sheets. This parameter is
+  not required if `bitmaps` is provided.
+- `col`: The number of columns in the sprite sheet if using `assetPath`. This parameter is not
+  required if `bitmaps` is provided.
+- `row`: The number of rows in the sprite sheet if using `assetPath`. This parameter is not required
+  if `bitmaps` is provided.
+- `bitmaps`: A list of `ImageBitmap` objects representing the animation frames. This parameter is
+  not required if `assetPath` is provided.
+- `step`: The time in seconds between each frame update, determining the speed of the animation.
+- `size`: The size of the animated sprite.
+- `position`: The position of the animated sprite.
+- `anchor`: The anchor point for positioning the animated sprite.
+- `loop`: A boolean indicating whether the animation should loop when it reaches the end.
+- `scale`: The scale of the animated sprite.
+- `angle`: The rotation angle of the animated sprite.
+- `color`: The color of the animated sprite.
 - `collider`: Optional collider for collision detection.
 - `otherColliders`: Optional array of other colliders to check for collisions.
 - `onColliding`: Optional listener for collision events.
