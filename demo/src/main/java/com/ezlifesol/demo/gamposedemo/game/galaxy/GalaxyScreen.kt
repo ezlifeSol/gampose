@@ -31,6 +31,7 @@ import com.ezlifesol.demo.gamposedemo.game.galaxy.obj.Shield
 import com.ezlifesol.library.gampose.collision.collider.CircleCollider
 import com.ezlifesol.library.gampose.collision.collider.RectangleCollider
 import com.ezlifesol.library.gampose.collision.detectColliding
+import com.ezlifesol.library.gampose.compose.GameAnimSprite
 import com.ezlifesol.library.gampose.compose.GameObject
 import com.ezlifesol.library.gampose.compose.GameSpace
 import com.ezlifesol.library.gampose.compose.GameSprite
@@ -290,21 +291,19 @@ fun GalaxyScreen() {
                 anchor = GameAnchor.Center
             )
             if (player.isShield) {
-                var nextShield by remember { mutableFloatStateOf(0f) }
                 shield.position =
                     GameVector(player.position.x, player.position.y + player.size.height * 0.25f)
-                if (gameTime > nextShield) {
-                    GameSprite(
-                        bitmap = shieldSprites[shield.step % shieldSprites.size],
-                        size = shield.size,
-                        position = shield.position,
-                        collider = shield.collider,
-                        anchor = shield.anchor
-                    )
-                    shield.step++
-                    nextShield = gameTime + shieldEffectRate
-                }
-                if (nextShield > shieldTime) {
+                GameAnimSprite(
+                    bitmaps = shieldSprites,
+//                    col = 5,
+//                    row = 4,
+                    step = 0.02f,
+                    size = shield.size,
+                    position = shield.position,
+                    collider = shield.collider,
+                    anchor = shield.anchor
+                )
+                if (shieldTime - gameTime < 0) {
                     player.isShield = false
                 }
             }

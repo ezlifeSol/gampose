@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,6 +13,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -22,6 +24,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.ezlifesol.library.gampose.unit.GameSize
 import kotlin.math.roundToInt
+
+val LocalGameState = staticCompositionLocalOf { GameState() }
 
 /**
  * GameSpace is a Composable function that provides a game loop and rendering environment.
@@ -49,6 +53,8 @@ fun GameSpace(
         }
     }
 
+    val gameState = remember { GameState() }
+
     // State variables for tracking time and game frame information.
     var prevDeltaMillisTime by remember { mutableLongStateOf(0L) }
     var deltaMillisTime by remember { mutableLongStateOf(0L) }
@@ -63,6 +69,7 @@ fun GameSpace(
 
     // Container for the game space, with layout and size calculations.
     Box(modifier = modifier.onGloballyPositioned {
+        // Update the game size based on the Box's size.
         gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
         isLoadedScreen = true
     }) {
@@ -73,26 +80,39 @@ fun GameSpace(
                     if (prevDeltaMillisTime == 0L) {
                         prevDeltaMillisTime = frameTimeMillis
                     }
+                    // Calculate the time difference between frames.
                     deltaMillisTime = frameTimeMillis - prevDeltaMillisTime
                     gameTime += deltaMillisTime
                     prevDeltaMillisTime = frameTimeMillis
 
+                    // Calculate the game frame rate.
                     gameFrame = (1 / (deltaMillisTime / 1000f)).roundToInt()
                 }
             }
         }
 
-        // Update game state and trigger game events.
-        if (isLoadedScreen && isActive) {
-            gameScope.gameSize = gameSize
-            gameScope.gameTime = gameTime / 1000f
-            gameScope.deltaTime = deltaMillisTime / 1000f
-            if (!isStarted) {
-                gameScope.onStart()
-                isStarted = true
+        CompositionLocalProvider(LocalGameState provides gameState) {
+            // Update game state and trigger game events.
+            if (isLoadedScreen && isActive) {
+                gameScope.apply {
+                    this.gameSize = gameSize
+                    this.gameTime = gameTime / 1000f
+                    this.deltaTime = deltaMillisTime / 1000f
+                }
+
+                gameState.apply {
+                    this.gameSize = gameScope.gameSize
+                    this.gameTime = gameScope.gameTime
+                    this.deltaTime = gameScope.deltaTime
+                }
+
+                if (!isStarted) {
+                    gameScope.onStart()
+                    isStarted = true
+                }
+                gameScope.onUpdate()
+                Spacer(modifier.drawBehind(onDraw))
             }
-            gameScope.onUpdate()
-            Spacer(modifier.drawBehind(onDraw))
         }
     }
 
@@ -101,7 +121,7 @@ fun GameSpace(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             isActive = event != Lifecycle.Event.ON_STOP
-            if (isActive.not()) {
+            if (!isActive) {
                 prevDeltaMillisTime = 0L
             }
         }
@@ -120,3 +140,16 @@ interface GameScope {
     var gameSize: GameSize
     var deltaTime: Float
 }
+
+/**
+ * Data class representing the game state, including time, size, and delta time.
+ *
+ * @property gameTime The current game time in seconds.
+ * @property gameSize The size of the game space.
+ * @property deltaTime The time elapsed between frames in seconds.
+ */
+data class GameState(
+    var gameTime: Float = 0f,
+    var gameSize: GameSize = GameSize.zero,
+    var deltaTime: Float = 0f,
+)
