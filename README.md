@@ -89,7 +89,7 @@ dependencyResolutionManagement {
 
 ### Step 2. Add Dependency
 
-Add the following to your `build.gradle` file:
+Add the following to your `build.gradle` or `build.gradle.kts` file:
 
 #### Groovy DSL (build.gradle)
 
