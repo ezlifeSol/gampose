@@ -40,7 +40,6 @@ import com.ezlifesol.library.gampose.collision.collider.CircleCollider
 import com.ezlifesol.library.gampose.collision.collider.RectangleCollider
 import com.ezlifesol.library.gampose.collision.detectColliding
 import com.ezlifesol.library.gampose.compose.GameAnimSprite
-import com.ezlifesol.library.gampose.compose.GameObject
 import com.ezlifesol.library.gampose.compose.GameSpace
 import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.input.detectDragging
@@ -117,16 +116,14 @@ fun GalaxyScreen() {
             player.position = GameVector(gameSize.width / 2, gameSize.height - 400f)
         }
 
-        // Background game object
-        GameObject(
-            size = GameSize(gameSize.width, gameSize.height), color = Color(0f, 0f, 0.2f)
-        )
+        gameOutfit.background = Color(0f, 0f, 0.2f)
 
         level = (score / 10) + 1
 
         dropItems.forEach { shieldPoint ->
             var nextShieldPoint by remember { mutableFloatStateOf(0f) }
-            shieldPoint.position = shieldPoint.position.copy(y = shieldPoint.position.y + (deltaTime * 200f))
+            shieldPoint.position =
+                shieldPoint.position.copy(y = shieldPoint.position.y + (deltaTime * 200f))
 
             val sprite = if (shieldPoint.collider.name == "Bullet Point") {
                 ImageManager.getBitmap(context, "galaxy/player_bullet.webp")
@@ -159,7 +156,8 @@ fun GalaxyScreen() {
                                     shieldTime = gameTime + 10f
                                 }
 
-                                shieldPoint.position = shieldPoint.position.copy(y = gameSize.height + shieldPoint.size.height)
+                                shieldPoint.position =
+                                    shieldPoint.position.copy(y = gameSize.height + shieldPoint.size.height)
                             }
                         }
                     )
@@ -305,8 +303,6 @@ fun GalaxyScreen() {
                     GameVector(player.position.x, player.position.y + player.size.height * 0.25f)
                 GameAnimSprite(
                     bitmaps = shieldSprites,
-//                    col = 5,
-//                    row = 4,
                     step = 0.02f,
                     size = shield.size,
                     position = shield.position,
@@ -406,7 +402,10 @@ fun GalaxyScreen() {
                     text = "Level: $level",
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .background(
+                            Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(24.dp)
+                        )
                         .padding(vertical = 8.dp)
                         .align(Alignment.CenterVertically),
                     color = Color.White,
@@ -416,7 +415,10 @@ fun GalaxyScreen() {
                     text = "Score: $score",
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .background(
+                            Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(24.dp)
+                        )
                         .padding(vertical = 8.dp)
                         .align(Alignment.CenterVertically),
                     color = Color.White,
@@ -426,7 +428,10 @@ fun GalaxyScreen() {
                     text = "Bullet: $bulletLevel",
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .background(
+                            Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(24.dp)
+                        )
                         .padding(vertical = 8.dp)
                         .align(Alignment.CenterVertically),
                     color = Color.White,
@@ -436,7 +441,10 @@ fun GalaxyScreen() {
                     text = "Speed: ${31 - (bulletSpawnRate * 100).toInt()}",
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .background(
+                            Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(24.dp)
+                        )
                         .padding(vertical = 8.dp)
                         .align(Alignment.CenterVertically),
                     color = Color.White,
@@ -449,7 +457,10 @@ fun GalaxyScreen() {
                     text = "Shield: $shieldText",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .background(
+                            Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(24.dp)
+                        )
                         .padding(vertical = 8.dp),
                     color = Color.White,
                     textAlign = TextAlign.Center
@@ -512,26 +523,32 @@ fun GalaxyScreen() {
             nextBulletSpawn = gameTime + bulletSpawnRate
         }
 
-        GameObject(size = gameSize, onClick = {
-            if (player.isAlive) {
-                fireBullet()
-            }
-        }, onDragging = detectDragging(onDrag = { _, direction ->
-            if (player.isAlive) {
-                player.sprite = when {
-                    direction.x > 0.8f -> "galaxy/player_right.webp"
-                    direction.x < -0.8f -> "galaxy/player_left.webp"
-                    else -> "galaxy/player.webp"
-                }
-                player.position += direction * deltaTime * 150f
-
-                if (gameTime > nextBulletSpawn) {
+        gameInput.apply {
+            onClick = {
+                if (player.isAlive) {
                     fireBullet()
                 }
             }
-        }, onDragEnd = {
-            player.sprite = "galaxy/player.webp"
-        }))
+            onDragging = detectDragging(
+                onDrag = { _, direction ->
+                    if (player.isAlive) {
+                        player.sprite = when {
+                            direction.x > 0.8f -> "galaxy/player_right.webp"
+                            direction.x < -0.8f -> "galaxy/player_left.webp"
+                            else -> "galaxy/player.webp"
+                        }
+                        player.position += direction * deltaTime * 150f
+
+                        if (gameTime > nextBulletSpawn) {
+                            fireBullet()
+                        }
+                    }
+                },
+                onDragEnd = {
+                    player.sprite = "galaxy/player.webp"
+                }
+            )
+        }
 
         if (player.isAlive.not()) {
             BasicAlertDialog(onDismissRequest = { }) {
@@ -568,7 +585,8 @@ fun GalaxyScreen() {
                                 bulletLevel = 1
                                 player.apply {
                                     isAlive = true
-                                    position = GameVector(gameSize.width / 2, gameSize.height - 400f)
+                                    position =
+                                        GameVector(gameSize.width / 2, gameSize.height - 400f)
                                     collider = CircleCollider.create("Player")
                                 }
                             },

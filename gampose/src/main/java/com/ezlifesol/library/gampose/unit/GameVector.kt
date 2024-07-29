@@ -21,6 +21,23 @@ open class GameVector(
         // Defines a constant zero vector for GameVector.
         val zero = GameVector(0f, 0f)
         val infinity = GameVector(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+
+        /**
+         * Linearly interpolates between two GameVector instances.
+         * @param start The starting GameVector.
+         * @param end The ending GameVector.
+         * @param t The interpolation factor, which should be between 0 and 1.
+         * @return A new GameVector instance representing the interpolated result.
+         */
+        fun lerp(start: GameVector, end: GameVector, t: Float): GameVector {
+            // Ensure the t value is clamped between 0 and 1.
+            val clampedT = t.coerceIn(0f, 1f)
+            return GameVector(
+                x = start.x + (end.x - start.x) * clampedT,
+                y = start.y + (end.y - start.y) * clampedT
+            )
+        }
+
     }
 
     // Returns a string representation of the vector in the format "[x,y]".
