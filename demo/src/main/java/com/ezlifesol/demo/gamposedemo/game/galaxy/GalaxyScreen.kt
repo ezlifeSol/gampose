@@ -78,7 +78,7 @@ fun GalaxyScreen() {
         val collider = CircleCollider.create("Shield")
         mutableStateOf(Shield(player.position, collider))
     }
-    val shieldPoints = remember { mutableStateListOf<Bullet>() }
+    val dropItems = remember { mutableStateListOf<Bullet>() }
 
     // Enemy settings
     val enemySpawnRate = 1f
@@ -91,7 +91,12 @@ fun GalaxyScreen() {
     val explosionSprites = remember { ImageManager.splitSprite(context, "galaxy/exp.webp", 5, 5) }
 
     // Bullet settings
-    var bulletSpawnRate = 0.3f
+    var bulletLevel by remember {
+        mutableIntStateOf(1)
+    }
+    var bulletSpawnRate by remember {
+        mutableFloatStateOf(0.3f)
+    }
     var nextBulletSpawn by remember { mutableFloatStateOf(0f) }
     val bullets = remember { mutableStateListOf<Bullet>() }
     val enemyBullets = remember { mutableStateListOf<Bullet>() }
@@ -108,12 +113,18 @@ fun GalaxyScreen() {
 
         level = (score / 10) + 1
 
-        shieldPoints.forEach { shieldPoint ->
+        dropItems.forEach { shieldPoint ->
             var nextShieldPoint by remember { mutableFloatStateOf(0f) }
             shieldPoint.position = shieldPoint.position.copy(y = shieldPoint.position.y + (deltaTime * 200f))
+
+            val sprite = if (shieldPoint.collider.name == "Bullet Point") {
+                ImageManager.getBitmap(context, "galaxy/player_bullet.webp")
+            } else {
+                shieldSprites[shieldPoint.step % shieldSprites.size]
+            }
             if (gameTime > nextShieldPoint) {
                 GameSprite(
-                    bitmap = shieldSprites[shieldPoint.step % shieldSprites.size],
+                    bitmap = sprite,
                     position = shieldPoint.position,
                     size = GameSize(65f, 52f),
                     anchor = shieldPoint.anchor,
@@ -122,13 +133,21 @@ fun GalaxyScreen() {
                     onColliding = detectColliding(
                         onCollidingStart = { other ->
                             if (other.name == player.collider?.name) {
-                                player.isShield = true
-                                shieldTime = gameTime + 10f
-                                if (bulletSpawnRate <= 0.01f) {
-                                    bulletSpawnRate = 0.01f
-                                } else {
-                                    bulletSpawnRate -= 0.02f
+                                if (shieldPoint.collider.name == "Bullet Point") {
+                                    if (bulletLevel < 7) {
+                                        bulletLevel++
+                                    }
+                                    if (bulletSpawnRate <= 0.05f) {
+                                        bulletSpawnRate = 0.05f
+                                    } else {
+                                        bulletSpawnRate -= 0.01f
+                                    }
                                 }
+                                if (shieldPoint.collider.name == "Shield Point") {
+                                    player.isShield = true
+                                    shieldTime = gameTime + 10f
+                                }
+
                                 shieldPoint.position = shieldPoint.position.copy(y = gameSize.height + shieldPoint.size.height)
                             }
                         }
@@ -230,7 +249,7 @@ fun GalaxyScreen() {
             it.position.y > gameSize.height + it.size.height
         }
 
-        shieldPoints.removeIf {
+        dropItems.removeIf {
             it.position.y > gameSize.height + it.size.height
         }
 
@@ -295,7 +314,14 @@ fun GalaxyScreen() {
             val shieldPointCollider = CircleCollider.create("Shield Point")
             val shieldPoint = Bullet(enemy.position, shieldPointCollider)
             shieldPoint.size = GameSize(52f, 52f)
-            shieldPoints.add(shieldPoint)
+            dropItems.add(shieldPoint)
+        }
+
+        fun dropBulletPoint(enemy: Enemy) {
+            val bulletPointCollider = CircleCollider.create("Bullet Point")
+            val bulletPoint = Bullet(enemy.position, bulletPointCollider)
+            bulletPoint.size = GameSize(36f, 68f)
+            dropItems.add(bulletPoint)
         }
 
         // Render bullets
@@ -320,10 +346,15 @@ fun GalaxyScreen() {
                             enemy.collider = null
                             AudioManager.playSound(R.raw.enemy_exp)
 
-                            val random = Random.nextInt(0, 5)
-                            if (random == 0) {
+                            val randomShield = Random.nextInt(0, 7)
+                            if (randomShield == 0) {
                                 dropShieldPoint(enemy)
                             }
+                            val randomBullet = Random.nextInt(0, 10)
+                            if (randomBullet == 0) {
+                                dropBulletPoint(enemy)
+                            }
+
                         }
                         AudioManager.playSound(R.raw.enemy_hit)
                         bullet.position.y = -1000f
@@ -343,21 +374,57 @@ fun GalaxyScreen() {
         )
 
         val shieldText = String.format(Locale.getDefault(), "%.1f", shieldTime - gameTime)
+        val bulletSpeedText = String.format(Locale.getDefault(), "%.2f", bulletSpawnRate)
         Text(
             text = """
             Level: $level
             Score: $score
+            Bullet: $bulletLevel
+            Bullet speed: $bulletSpeedText
             ${if (shieldText <= "0") "" else "Shield: $shieldText"}
         """.trimIndent(),
             modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp),
             color = Color.White,
-            fontSize = 20.sp
+            fontSize = 14.sp
         )
 
         fun fireBullet() {
-            val bulletPosition = GameVector(player.position.x, player.position.y - 50f)
-            val bulletCollider = RectangleCollider.create(name = "Bullet")
-            bullets.add(Bullet(bulletPosition, bulletCollider))
+
+            if (bulletLevel == 1 || bulletLevel == 3 || bulletLevel == 5 || bulletLevel == 7) {
+                val bulletPosition = GameVector(player.position.x, player.position.y - 50f)
+                val bulletCollider = RectangleCollider.create(name = "Bullet")
+                bullets.add(Bullet(bulletPosition, bulletCollider))
+            }
+
+            if (bulletLevel == 2 || bulletLevel == 3 || bulletLevel == 4 || bulletLevel == 5 || bulletLevel == 6 || bulletLevel == 7) {
+                val bulletPosition2 = GameVector(player.position.x - 25, player.position.y - 30f)
+                val bulletCollider2 = RectangleCollider.create(name = "Bullet")
+                bullets.add(Bullet(bulletPosition2, bulletCollider2))
+
+                val bulletPosition3 = GameVector(player.position.x + 25, player.position.y - 30f)
+                val bulletCollider3 = RectangleCollider.create(name = "Bullet")
+                bullets.add(Bullet(bulletPosition3, bulletCollider3))
+            }
+
+            if (bulletLevel == 4 || bulletLevel == 5 || bulletLevel == 6 || bulletLevel == 7) {
+                val bulletPosition4 = GameVector(player.position.x - 50, player.position.y - 10f)
+                val bulletCollider4 = RectangleCollider.create(name = "Bullet")
+                bullets.add(Bullet(bulletPosition4, bulletCollider4))
+
+                val bulletPosition5 = GameVector(player.position.x + 50, player.position.y - 10f)
+                val bulletCollider5 = RectangleCollider.create(name = "Bullet")
+                bullets.add(Bullet(bulletPosition5, bulletCollider5))
+            }
+            if (bulletLevel == 6 || bulletLevel == 7) {
+                val bulletPosition6 = GameVector(player.position.x - 75, player.position.y + 10f)
+                val bulletCollider6 = RectangleCollider.create(name = "Bullet")
+                bullets.add(Bullet(bulletPosition6, bulletCollider6))
+
+                val bulletPosition7 = GameVector(player.position.x + 75, player.position.y + 10f)
+                val bulletCollider7 = RectangleCollider.create(name = "Bullet")
+                bullets.add(Bullet(bulletPosition7, bulletCollider7))
+            }
+
             AudioManager.playSound(R.raw.player_shot)
             nextBulletSpawn = gameTime + bulletSpawnRate
         }
@@ -402,13 +469,14 @@ fun GalaxyScreen() {
                         )
 
                         TextButton(onClick = {
-                            shieldPoints.clear()
+                            dropItems.clear()
                             bullets.clear()
                             enemyBullets.clear()
                             enemies.clear()
                             score = 0
                             playerExplosionStep = 0
                             bulletSpawnRate = 0.3f
+                            bulletLevel = 1
                             player.apply {
                                 isAlive = true
                                 position = GameVector(gameSize.width / 2, gameSize.height - 400f)
