@@ -57,6 +57,29 @@ processing input events, and managing audio.
 - **Joystick**: Provides a virtual joystick component with properties such as size, base image, and
   stick image. It supports drag events for controlling the joystick.
 
+### GameVision
+
+- **GameVision**: Class that represents the camera or viewport within the game. It defines the
+  position and anchor point of the camera, allowing for manipulation of the game's view.
+    - `position`: Position of the camera.
+    - `anchor`: Anchor point of the camera.
+
+### GameOutfit
+
+- **GameOutfit**: Class that represents the visual styling of the game environment. It allows for
+  customization of the background color and other visual properties of the game space.
+    - `backgroundColor`: Color of the game space background.
+
+### GameInput
+
+- **GameInput**: A class for handling various input events within the game. It includes:
+    - `onClick`: Callback for click events.
+    - `onTap`: Callback for tap events with `Offset` parameter.
+    - `onDoubleTap`: Callback for double-tap events with `Offset` parameter.
+    - `onLongPress`: Callback for long press events with `Offset` parameter.
+    - `onPress`: Callback for press events with `Offset` parameter.
+    - `onDragging`: Listener for drag events.
+
 ## Getting Started
 
 ### Step 1. Add the JitPack repository to your build file
@@ -95,7 +118,7 @@ Add the following to your `build.gradle` or `build.gradle.kts` file:
 
 ```gradle
 dependencies {
-    implementation 'com.github.ezlifeSol:gampose:1.3.0'
+    implementation 'com.github.ezlifeSol:gampose:1.4.0'
 }
 ```
 
@@ -103,7 +126,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("com.github.ezlifeSol:gampose:1.3.0")
+    implementation("com.github.ezlifeSol:gampose:1.4.0")
 }
 ```
 
