@@ -1,11 +1,18 @@
 package com.ezlifesol.demo.gamposedemo.game.galaxy
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -21,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ezlifesol.demo.gamposedemo.R
@@ -43,6 +51,8 @@ import com.ezlifesol.library.gampose.unit.GameSize
 import com.ezlifesol.library.gampose.unit.GameVector
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -325,12 +335,22 @@ fun GalaxyScreen() {
 
         // Render bullets
         bullets.forEach { bullet ->
-            bullet.position = bullet.position.copy(y = bullet.position.y - (deltaTime * 1000f))
+            val radian = Math.toRadians(bullet.angle.toDouble())
+            val speed = 1000f
+
+            // Tính toán vận tốc theo trục x và y
+            val velocityX = (sin(radian) * speed).toFloat()
+            val velocityY = (cos(radian) * speed).toFloat()
+            bullet.position = bullet.position.copy(
+                x = bullet.position.x + (deltaTime * velocityX),
+                y = bullet.position.y - (deltaTime * velocityY)
+            )
             GameSprite(
                 assetPath = bullet.sprite,
                 size = bullet.size,
                 position = bullet.position,
                 anchor = bullet.anchor,
+                angle = bullet.angle,
                 collider = bullet.collider,
                 otherColliders = enemies.mapNotNull { it.collider }.toTypedArray(),
                 onColliding = detectColliding(onCollidingStart = { other ->
@@ -372,56 +392,120 @@ fun GalaxyScreen() {
             )
         )
 
-        val shieldText = String.format(Locale.getDefault(), "%.1f", shieldTime - gameTime)
-        val bulletSpeedText = String.format(Locale.getDefault(), "%.2f", bulletSpawnRate)
-        Text(
-            text = """
-            Level: $level
-            Score: $score
-            Bullet: $bulletLevel
-            Bullet speed: $bulletSpeedText
-            ${if (shieldText <= "0") "" else "Shield: $shieldText"}
-        """.trimIndent(),
-            modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp),
-            color = Color.White,
-            fontSize = 14.sp
-        )
+        val shieldText = String.format(Locale.getDefault(), "%.0f", shieldTime - gameTime)
+
+        Column(
+            modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Level: $level",
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.CenterVertically),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Score: $score",
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.CenterVertically),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Bullet: $bulletLevel",
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.CenterVertically),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Speed: ${31 - (bulletSpawnRate * 100).toInt()}",
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.CenterVertically),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+            if (shieldText >= "0") {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Shield: $shieldText",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(24.dp))
+                        .padding(vertical = 8.dp),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
 
         fun fireBullet() {
 
             if (bulletLevel == 1 || bulletLevel == 3 || bulletLevel == 5 || bulletLevel == 7) {
                 val bulletPosition = GameVector(player.position.x, player.position.y - 50f)
                 val bulletCollider = RectangleCollider.create(name = "Bullet")
-                bullets.add(Bullet(bulletPosition, bulletCollider))
+                bullets.add(Bullet(bulletPosition, bulletCollider).apply {
+                    angle = 0f
+                })
             }
 
             if (bulletLevel == 2 || bulletLevel == 3 || bulletLevel == 4 || bulletLevel == 5 || bulletLevel == 6 || bulletLevel == 7) {
                 val bulletPosition2 = GameVector(player.position.x - 25, player.position.y - 30f)
                 val bulletCollider2 = RectangleCollider.create(name = "Bullet")
-                bullets.add(Bullet(bulletPosition2, bulletCollider2))
+                bullets.add(Bullet(bulletPosition2, bulletCollider2).apply {
+                    angle = -5f
+                })
 
                 val bulletPosition3 = GameVector(player.position.x + 25, player.position.y - 30f)
                 val bulletCollider3 = RectangleCollider.create(name = "Bullet")
-                bullets.add(Bullet(bulletPosition3, bulletCollider3))
+                bullets.add(Bullet(bulletPosition3, bulletCollider3).apply {
+                    angle = 5f
+                })
             }
 
             if (bulletLevel == 4 || bulletLevel == 5 || bulletLevel == 6 || bulletLevel == 7) {
                 val bulletPosition4 = GameVector(player.position.x - 50, player.position.y - 10f)
                 val bulletCollider4 = RectangleCollider.create(name = "Bullet")
-                bullets.add(Bullet(bulletPosition4, bulletCollider4))
+                bullets.add(Bullet(bulletPosition4, bulletCollider4).apply {
+                    angle = -10f
+                })
 
                 val bulletPosition5 = GameVector(player.position.x + 50, player.position.y - 10f)
                 val bulletCollider5 = RectangleCollider.create(name = "Bullet")
-                bullets.add(Bullet(bulletPosition5, bulletCollider5))
+                bullets.add(Bullet(bulletPosition5, bulletCollider5).apply {
+                    angle = 10f
+                })
             }
             if (bulletLevel == 6 || bulletLevel == 7) {
                 val bulletPosition6 = GameVector(player.position.x - 75, player.position.y + 10f)
                 val bulletCollider6 = RectangleCollider.create(name = "Bullet")
-                bullets.add(Bullet(bulletPosition6, bulletCollider6))
+                bullets.add(Bullet(bulletPosition6, bulletCollider6).apply {
+                    angle = -15f
+                })
 
                 val bulletPosition7 = GameVector(player.position.x + 75, player.position.y + 10f)
                 val bulletCollider7 = RectangleCollider.create(name = "Bullet")
-                bullets.add(Bullet(bulletPosition7, bulletCollider7))
+                bullets.add(Bullet(bulletPosition7, bulletCollider7).apply {
+                    angle = 15f
+                })
             }
 
             AudioManager.playSound(R.raw.player_shot)
@@ -449,11 +533,12 @@ fun GalaxyScreen() {
             player.sprite = "galaxy/player.webp"
         }))
 
-
         if (player.isAlive.not()) {
             BasicAlertDialog(onDismissRequest = { }) {
                 Surface(
-                    shape = MaterialTheme.shapes.large
+                    modifier = Modifier.padding(16.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    color = Color.White.copy(alpha = 0.3f) // nền tối
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -461,32 +546,44 @@ fun GalaxyScreen() {
                     ) {
                         Text(
                             text = """
-                                Game over
-                                Your score: $score
-                            """.trimIndent(),
-                            fontSize = 20.sp
+                        Game Over
+                        Your Score: $score
+                    """.trimIndent(),
+                            fontSize = 20.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
                         )
 
-                        TextButton(onClick = {
-                            dropItems.clear()
-                            bullets.clear()
-                            enemyBullets.clear()
-                            enemies.clear()
-                            score = 0
-                            playerExplosionStep = 0
-                            bulletSpawnRate = 0.3f
-                            bulletLevel = 1
-                            player.apply {
-                                isAlive = true
-                                position = GameVector(gameSize.width / 2, gameSize.height - 400f)
-                                collider = CircleCollider.create("Player")
-                            }
-                        }) {
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        TextButton(
+                            onClick = {
+                                dropItems.clear()
+                                bullets.clear()
+                                enemyBullets.clear()
+                                enemies.clear()
+                                score = 0
+                                playerExplosionStep = 0
+                                bulletSpawnRate = 0.3f
+                                bulletLevel = 1
+                                player.apply {
+                                    isAlive = true
+                                    position = GameVector(gameSize.width / 2, gameSize.height - 400f)
+                                    collider = CircleCollider.create("Player")
+                                }
+                            },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = Color.White,
+                                containerColor = Color(0f, 0f, 0.2f)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
                             Text(text = "Replay")
                         }
                     }
                 }
             }
         }
+
     }
 }
