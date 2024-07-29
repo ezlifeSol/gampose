@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.Dp
  * - Supports addition, subtraction, multiplication, and division operations with both other GameSize instances and float values.
  */
 @Keep
-class GameSize(val width: Float, val height: Float) {
+data class GameSize(val width: Float, val height: Float) {
 
     companion object {
         // Defines a constant zero size.

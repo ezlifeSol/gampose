@@ -20,6 +20,7 @@ open class GameVector(
     companion object {
         // Defines a constant zero vector for GameVector.
         val zero = GameVector(0f, 0f)
+        val infinity = GameVector(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
     }
 
     // Returns a string representation of the vector in the format "[x,y]".
@@ -82,6 +83,19 @@ open class GameVector(
      * @return A new GameVector instance representing the result of the division.
      */
     operator fun div(amount: Float) = GameVector(x / amount, y / amount)
+
+    override fun equals(other: Any?): Boolean {
+        if (other is GameVector) {
+            return this.x == other.x && this.y == other.y
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        return result
+    }
 
     /**
      * Creates a copy of this GameVector with optional new x and y values.
