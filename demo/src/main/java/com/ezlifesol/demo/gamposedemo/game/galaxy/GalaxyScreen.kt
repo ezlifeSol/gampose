@@ -121,27 +121,21 @@ fun GalaxyScreen() {
         level = (score / 10) + 1
 
         dropItems.forEach { shieldPoint ->
-            var nextShieldPoint by remember { mutableFloatStateOf(0f) }
-            shieldPoint.position =
-                shieldPoint.position.copy(y = shieldPoint.position.y + (deltaTime * 200f))
+            shieldPoint.position = shieldPoint.position.copy(y = shieldPoint.position.y + (deltaTime * 200f))
 
-            val sprite = if (shieldPoint.collider.name == "Bullet Point") {
-                ImageManager.getBitmap(context, "galaxy/player_bullet.webp")
-            } else {
-                shieldSprites[shieldPoint.step % shieldSprites.size]
-            }
-            if (gameTime > nextShieldPoint) {
-                GameSprite(
-                    bitmap = sprite,
-                    position = shieldPoint.position,
-                    size = GameSize(65f, 52f),
-                    anchor = shieldPoint.anchor,
-                    collider = shieldPoint.collider,
-                    otherColliders = player.collider?.let { arrayOf(it) },
-                    onColliding = detectColliding(
-                        onCollidingStart = { other ->
-                            if (other.name == player.collider?.name) {
-                                if (shieldPoint.collider.name == "Bullet Point") {
+            when (shieldPoint.collider.name) {
+                "Bullet Point" -> {
+                    val sprite = ImageManager.getBitmap(context, "galaxy/player_bullet.webp")
+                    GameSprite(
+                        bitmap = sprite,
+                        position = shieldPoint.position,
+                        size = shieldPoint.size,
+                        anchor = shieldPoint.anchor,
+                        collider = shieldPoint.collider,
+                        otherColliders = player.collider?.let { arrayOf(it) },
+                        onColliding = detectColliding(
+                            onCollidingStart = { other ->
+                                if (other.name == player.collider?.name) {
                                     if (bulletLevel < 7) {
                                         bulletLevel++
                                     }
@@ -150,20 +144,34 @@ fun GalaxyScreen() {
                                     } else {
                                         bulletSpawnRate -= 0.01f
                                     }
+                                    shieldPoint.position = shieldPoint.position.copy(y = gameSize.height + shieldPoint.size.height)
                                 }
-                                if (shieldPoint.collider.name == "Shield Point") {
+                            }
+                        )
+                    )
+                }
+
+                "Shield Point" -> {
+                    GameAnimSprite(
+                        bitmaps = shieldSprites,
+                        step = shieldEffectRate,
+                        position = shieldPoint.position,
+                        size = shieldPoint.size,
+                        anchor = shieldPoint.anchor,
+                        collider = shieldPoint.collider,
+                        otherColliders = player.collider?.let { arrayOf(it) },
+                        onColliding = detectColliding(
+                            onCollidingStart = { other ->
+                                if (other.name == player.collider?.name) {
                                     player.isShield = true
                                     shieldTime = gameTime + 10f
-                                }
 
-                                shieldPoint.position =
-                                    shieldPoint.position.copy(y = gameSize.height + shieldPoint.size.height)
+                                    shieldPoint.position = shieldPoint.position.copy(y = gameSize.height + shieldPoint.size.height)
+                                }
                             }
-                        }
+                        )
                     )
-                )
-                shieldPoint.step++
-                nextShieldPoint = gameTime + shieldEffectRate
+                }
             }
         }
 
@@ -318,7 +326,7 @@ fun GalaxyScreen() {
         fun dropShieldPoint(enemy: Enemy) {
             val shieldPointCollider = CircleCollider.create("Shield Point")
             val shieldPoint = Bullet(enemy.position, shieldPointCollider)
-            shieldPoint.size = GameSize(52f, 52f)
+            shieldPoint.size = GameSize(125f, 100f)
             dropItems.add(shieldPoint)
         }
 
