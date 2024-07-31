@@ -13,4 +13,5 @@ data class Player(
     val size = GameSize(196f, 140f)
     var isAlive = true
     var isShield = false
+    var bulletStyle = BulletStyle.Spread
 }

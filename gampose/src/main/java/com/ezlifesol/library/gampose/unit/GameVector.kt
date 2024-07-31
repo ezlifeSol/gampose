@@ -26,6 +26,8 @@
 package com.ezlifesol.library.gampose.unit
 
 import androidx.annotation.Keep
+import java.lang.Math.toDegrees
+import kotlin.math.atan2
 
 /**
  * GameVector is a class representing a 2-dimensional vector with x and y coordinates.
@@ -62,6 +64,52 @@ open class GameVector(
                 y = start.y + (end.y - start.y) * clampedT
             )
         }
+
+        /**
+         * Calculates the angle from the object's position to the target's position in degrees.
+         * The angle is measured counterclockwise from the positive x-axis.
+         * If the object and target are at the same position, the function returns 0.0.
+         *
+         * @param objectPosition The current position of the object as a GameVector.
+         * @param targetPosition The target position as a GameVector.
+         * @return The angle in degrees between the object and target positions, where 0 degrees
+         *         is directly to the right (positive x direction) and positive angles are
+         *         counterclockwise.
+         */
+        fun calculateAngle(objectPosition: GameVector, targetPosition: GameVector): Double {
+            val deltaX = targetPosition.x - objectPosition.x
+            val deltaY = objectPosition.y - targetPosition.y
+
+            if (deltaX == 0f && deltaY == 0f) {
+                return 0.0
+            }
+
+            val bearingRadians = atan2(deltaY.toDouble(), deltaX.toDouble())
+            return 90 - toDegrees(bearingRadians)
+        }
+
+        /**
+         * Finds the nearest target relative to the current position.
+         *
+         * @param current The current position of the object as a GameVector.
+         * @param others A list of target positions as List<GameVector>.
+         * @return The position of the nearest target as a GameVector. If the list of targets is empty,
+         *         the function will return null.
+         */
+        fun nearest(current: GameVector, others: List<GameVector>): GameVector? {
+            if (others.isEmpty()) return null
+
+            // Function to calculate the distance between two GameVector instances
+            fun distance(a: GameVector, b: GameVector): Float {
+                val deltaX = a.x - b.x
+                val deltaY = a.y - b.y
+                return kotlin.math.sqrt(deltaX * deltaX + deltaY * deltaY)
+            }
+
+            // Find the nearest target
+            return others.minByOrNull { distance(current, it) }
+        }
+
 
     }
 

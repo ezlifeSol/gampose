@@ -37,8 +37,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -104,6 +107,9 @@ fun GameObject(
     onDragging: OnDraggingListener? = null,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
+    var lastTime by remember {
+        mutableLongStateOf(0L)
+    }
     // List to keep track of colliders this game object is currently colliding with
     val collidingWith = remember { mutableStateListOf<Collider<out Shape>>() }
 
@@ -155,11 +161,30 @@ fun GameObject(
                 },
                 onDrag = { change, dragAmount ->
                     change.consume()
-                    onDragging.onDrag(change, GameVector(dragAmount.x, dragAmount.y))
+
+                    // Get the current time
+                    val currentTime = change.uptimeMillis
+
+                    // Calculate delta time between drag events
+                    val deltaTime =
+                        (currentTime - lastTime).coerceAtLeast(1) // Prevent division by 0
+
+                    // Normalize dragAmount by time
+                    val normalizedDragAmount = GameVector(
+                        dragAmount.x / deltaTime,
+                        dragAmount.y / deltaTime
+                    )
+
+                    // Update the last event time
+                    lastTime = currentTime
+
+                    // Call onDrag with the normalized dragAmount
+                    onDragging.onDrag(change, normalizedDragAmount)
                 },
             )
         }
     }
+
 
     // Handle tap and press gestures
     if (onTap != null || onDoubleTap != null || onLongPress != null || onPress != null) {
