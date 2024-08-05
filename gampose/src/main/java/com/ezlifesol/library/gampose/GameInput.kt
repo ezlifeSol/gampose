@@ -43,7 +43,7 @@ class GameInput {
      *
      * @property onClick A lambda function to handle click events.
      */
-    var onClick: () -> Unit = {}
+    var onClick: (() -> Unit)? = null
 
     /**
      * Listener for handling tap events.
@@ -52,7 +52,7 @@ class GameInput {
      * @property onTap A lambda function that takes an [Offset] representing the position of the tap.
      * The default implementation is an empty lambda that does nothing.
      */
-    var onTap: (Offset) -> Unit = {}
+    var onTap: ((Offset) -> Unit)? = null
 
     /**
      * Listener for handling double-tap events.
@@ -61,7 +61,7 @@ class GameInput {
      * @property onDoubleTap A lambda function that takes an [Offset] representing the position of the double-tap.
      * The default implementation is an empty lambda that does nothing.
      */
-    var onDoubleTap: (Offset) -> Unit = {}
+    var onDoubleTap: ((Offset) -> Unit)? = null
 
     /**
      * Listener for handling long press events.
@@ -70,7 +70,7 @@ class GameInput {
      * @property onLongPress A lambda function that takes an [Offset] representing the position of the long press.
      * The default implementation is an empty lambda that does nothing.
      */
-    var onLongPress: (Offset) -> Unit = {}
+    var onLongPress: ((Offset) -> Unit)? = null
 
     /**
      * Listener for handling press events.
@@ -79,7 +79,7 @@ class GameInput {
      * @property onPress A lambda function that takes an [Offset] representing the position of the press.
      * The default implementation is an empty lambda that does nothing.
      */
-    var onPress: (Offset) -> Unit = {}
+    var onPress: ((Offset) -> Unit)? = null
 
     /**
      * Listener for handling dragging events.
@@ -88,5 +88,5 @@ class GameInput {
      * @property onDragging A listener for handling dragging events. The default implementation is provided by [detectDragging],
      * which does nothing by default.
      */
-    var onDragging: OnDraggingListener = detectDragging { _, _ -> }
+    var onDragging: OnDraggingListener? = null
 }

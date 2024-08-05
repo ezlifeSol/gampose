@@ -151,6 +151,19 @@ fun GameSpace(
                     gameScope.onStart()
                     isStarted = true
                 }
+
+                gameScope.gameInput.apply {
+                    GameObject(
+                        size = gameSize,
+                        onClick = onClick,
+                        onTap = onTap,
+                        onDoubleTap = onDoubleTap,
+                        onLongPress = onLongPress,
+                        onPress = onPress,
+                        onDragging = onDragging,
+                    )
+                }
+
                 Box(
                     modifier = Modifier.offset {
                         gameScope.run {
@@ -170,18 +183,6 @@ fun GameSpace(
                     gameScope.onUpdate()
                     // Perform custom drawing on the game space using the onDraw lambda.
                     Spacer(modifier.drawBehind(onDraw))
-                }
-
-                gameScope.gameInput.apply {
-                    GameObject(
-                        size = gameSize,
-                        onClick = onClick,
-                        onTap = onTap,
-                        onDoubleTap = onDoubleTap,
-                        onLongPress = onLongPress,
-                        onPress = onPress,
-                        onDragging = onDragging,
-                    )
                 }
             }
         }

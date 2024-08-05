@@ -114,7 +114,7 @@ fun GalaxyScreen() {
     }
     val bulletSpawnRate = 0.3f
     var nextBulletSpawn by remember { mutableFloatStateOf(0f) }
-    val missileSpawnRate = 5f
+    val missileSpawnRate = 3f
     var nextMissileSpawn by remember { mutableFloatStateOf(0f) }
     val bullets = remember { mutableStateListOf<Bullet>() }
 //    val enemyBullets = remember { mutableStateListOf<Bullet>() }
@@ -289,9 +289,9 @@ fun GalaxyScreen() {
                     follow?.let {
                         val newRotate = GameVector.calculateAngle(bullet.position, follow).toFloat()
                         if (bullet.rotate > newRotate) {
-                            bullet.rotate -= 1
+                            bullet.rotate -= 3
                         } else {
-                            bullet.rotate += 1
+                            bullet.rotate += 3
                         }
                         bullet.angle = bullet.rotate
                     }
@@ -582,7 +582,7 @@ fun GalaxyScreen() {
                     bullets.add(Bullet(bulletPosition, bulletCollider).apply {
                         this.rotate = config.rotate
                         this.style = config.style
-                        this.damage = 3
+                        this.damage = 5
                         this.isMine = true
                     })
                 }

@@ -26,10 +26,10 @@ data class BulletConfig(
 )
 
 enum class BulletStyle(val id: Int, val sprite: String, val speed: Float, val size: GameSize) {
-    Spread(id = 1, sprite = "galaxy/bullet_spread.webp", speed = 1f, size = GameSize(28f, 68f)),
+    Spread(id = 1, sprite = "galaxy/bullet_spread.webp", speed = 1.5f, size = GameSize(28f, 68f)),
     Straight(id = 2, sprite = "galaxy/bullet_straight.webp", speed = 2f, size = GameSize(16f, 80f)),
     Bean(id = 3, sprite = "galaxy/bullet_bean.webp", speed = 2.5f, size = GameSize(28f, 24f)),
-    Missile(id = 4, sprite = "galaxy/bullet_missile.webp", speed = 0.5f, size = GameSize(36f, 56f)),
+    Missile(id = 4, sprite = "galaxy/bullet_missile.webp", speed = 1f, size = GameSize(36f, 56f)),
     NinjaStar(
         id = 5,
         sprite = "galaxy/bullet_ninja_star.webp",
