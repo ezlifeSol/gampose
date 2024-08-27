@@ -42,8 +42,53 @@ import androidx.annotation.Keep
 open class GameVector3(x: Float, y: Float, var z: Float) : GameVector(x, y) {
 
     companion object {
-        // Defines a constant zero vector for GameVector3.
+        /**
+         * Represents a vector with x, y, and z components set to 0.
+         * Often used as a neutral starting point or for comparisons.
+         */
         val zero = GameVector3(0f, 0f, 0f)
+
+        /**
+         * Represents a vector pointing upwards, with a y-component of -1.
+         * Commonly used to indicate upward movement or direction.
+         */
+        val up = GameVector3(0f, -1f, 0f)
+
+        /**
+         * Represents a vector pointing downwards, with a y-component of 1.
+         * Commonly used to indicate downward movement or direction.
+         */
+        val down = GameVector3(0f, 1f, 0f)
+
+        /**
+         * Represents a vector pointing to the left, with an x-component of -1.
+         * Commonly used to indicate leftward movement or direction.
+         */
+        val left = GameVector3(-1f, 0f, 0f)
+
+        /**
+         * Represents a vector pointing to the right, with an x-component of 1.
+         * Commonly used to indicate rightward movement or direction.
+         */
+        val right = GameVector3(1f, 0f, 0f)
+
+        /**
+         * Represents a vector pointing forward, with a z-component of 1.
+         * Commonly used to indicate forward movement or direction in 3D space.
+         */
+        val forward = GameVector3(0f, 0f, 1f)
+
+        /**
+         * Represents a vector pointing backward, with a z-component of -1.
+         * Commonly used to indicate backward movement or direction in 3D space.
+         */
+        val backward = GameVector3(0f, 0f, -1f)
+
+        /**
+         * Represents a vector with x, y, and z components set to positive infinity.
+         * Often used to represent an infinitely distant point.
+         */
+        val infinity = GameVector3(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
     }
 
     // Returns a string representation of the vector in the format "[x,y,z]".

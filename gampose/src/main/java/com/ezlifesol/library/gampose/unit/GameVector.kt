@@ -45,8 +45,40 @@ open class GameVector(
 ) {
 
     companion object {
-        // Defines a constant zero vector for GameVector.
+        /**
+         * Represents a vector with both x and y components set to 0.
+         * Often used as a neutral starting point or for comparisons.
+         */
         val zero = GameVector(0f, 0f)
+
+        /**
+         * Represents a vector pointing upwards, with a y-component of -1.
+         * Commonly used to indicate upward movement or direction.
+         */
+        val up = GameVector(0f, -1f)
+
+        /**
+         * Represents a vector pointing downwards, with a y-component of 1.
+         * Commonly used to indicate downward movement or direction.
+         */
+        val down = GameVector(0f, 1f)
+
+        /**
+         * Represents a vector pointing to the left, with an x-component of -1.
+         * Commonly used to indicate leftward movement or direction.
+         */
+        val left = GameVector(-1f, 0f)
+
+        /**
+         * Represents a vector pointing to the right, with an x-component of 1.
+         * Commonly used to indicate rightward movement or direction.
+         */
+        val right = GameVector(1f, 0f)
+
+        /**
+         * Represents a vector with both x and y components set to positive infinity.
+         * Often used to represent an infinitely distant point.
+         */
         val infinity = GameVector(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
 
         /**
@@ -57,7 +89,7 @@ open class GameVector(
          * @return A new GameVector instance representing the interpolated result.
          */
         fun lerp(start: GameVector, end: GameVector, t: Float): GameVector {
-            // Ensure the t value is clamped between 0 and 1.
+            // Ensure the t value is clamped between 0f and 1f.
             val clampedT = t.coerceIn(0f, 1f)
             return GameVector(
                 x = start.x + (end.x - start.x) * clampedT,
@@ -99,18 +131,20 @@ open class GameVector(
         fun nearest(current: GameVector, others: List<GameVector>): GameVector? {
             if (others.isEmpty()) return null
 
-            // Function to calculate the distance between two GameVector instances
-            fun distance(a: GameVector, b: GameVector): Float {
-                val deltaX = a.x - b.x
-                val deltaY = a.y - b.y
-                return kotlin.math.sqrt(deltaX * deltaX + deltaY * deltaY)
-            }
-
             // Find the nearest target
-            return others.minByOrNull { distance(current, it) }
+            return others.minByOrNull { current.distanceTo(it) }
         }
+    }
 
-
+    /**
+     * Calculates the distance from this GameVector to the target GameVector.
+     * @param target The target GameVector to calculate the distance to.
+     * @return The distance between this vector and the target vector as a Float.
+     */
+    fun distanceTo(target: GameVector): Float {
+        val deltaX = this.x - target.x
+        val deltaY = this.y - target.y
+        return kotlin.math.sqrt(deltaX * deltaX + deltaY * deltaY)
     }
 
     // Returns a string representation of the vector in the format "[x,y]".
@@ -174,6 +208,12 @@ open class GameVector(
      */
     operator fun div(amount: Float) = GameVector(x / amount, y / amount)
 
+    /**
+     * Checks if two GameVector instances are equal by comparing their x and y components.
+     * @param other Another object to compare with this GameVector.
+     * @return True if the other object is a GameVector and its x and y components are equal
+     *         to this vector's x and y components, false otherwise.
+     */
     override fun equals(other: Any?): Boolean {
         if (other is GameVector) {
             return this.x == other.x && this.y == other.y
@@ -181,6 +221,10 @@ open class GameVector(
         return false
     }
 
+    /**
+     * Generates a hash code for this GameVector based on its x and y components.
+     * @return An integer hash code representing the GameVector.
+     */
     override fun hashCode(): Int {
         var result = x.hashCode()
         result = 31 * result + y.hashCode()
@@ -194,4 +238,17 @@ open class GameVector(
      * @return A new GameVector instance with the specified x and y values.
      */
     fun copy(x: Float = this.x, y: Float = this.y) = GameVector(x, y)
+
+    /**
+     * Updates this GameVector with new x and y values.
+     * @param x New x value to set.
+     * @param y New y value to set.
+     */
+    fun update(
+        x: Float = this.x,
+        y: Float = this.y
+    ) {
+        this.x = x
+        this.y = y
+    }
 }
