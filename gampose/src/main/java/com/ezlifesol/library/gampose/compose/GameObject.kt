@@ -226,24 +226,32 @@ fun GameObject(
 }
 
 /**
- * Extension function to calculate IntOffset based on GameAnchor.
+ * Calculates and returns the `IntOffset` value based on the anchor point of the game object.
  *
- * @param width Width of the game object.
- * @param height Height of the game object.
- * @param offsetX Current x-coordinate position.
- * @param offsetY Current y-coordinate position.
- * @return The calculated IntOffset based on the anchor point.
+ * @param width The width of the game object.
+ * @param height The height of the game object.
+ * @param offsetX The current x-coordinate position.
+ * @param offsetY The current y-coordinate position.
+ * @return The calculated `IntOffset` value based on the specified anchor point.
+ *
+ * - For default anchor points (`TopLeft`, `TopCenter`, etc.), the `IntOffset` value is calculated based on
+ * the object's width and height, with the anchor point being a corner of the object relative to the current position.
+ *
+ * - For custom anchor points (`Custom`), the `IntOffset` value is calculated based on the custom x and y coordinates
+ * specified by the `GameVector` object.
  */
 fun GameAnchor.getIntOffset(width: Float, height: Float, offsetX: Int, offsetY: Int): IntOffset {
     return when (this) {
-        GameAnchor.TopLeft -> IntOffset(offsetX, offsetY)
-        GameAnchor.TopCenter -> IntOffset(((offsetX - width / 2).toInt()), offsetY)
-        GameAnchor.TopRight -> IntOffset(((offsetX - width).toInt()), offsetY)
-        GameAnchor.CenterLeft -> IntOffset(offsetX, ((offsetY - height / 2).toInt()))
-        GameAnchor.Center -> IntOffset(((offsetX - width / 2).toInt()), ((offsetY - height / 2).toInt()))
-        GameAnchor.CenterRight -> IntOffset(((offsetX - width).toInt()), ((offsetY - height / 2).toInt()))
-        GameAnchor.BottomLeft -> IntOffset(offsetX, ((offsetY - height).toInt()))
-        GameAnchor.BottomCenter -> IntOffset(((offsetX - width / 2).toInt()), ((offsetY - height).toInt()))
-        GameAnchor.BottomRight -> IntOffset(((offsetX - width).toInt()), ((offsetY - height).toInt()))
+        is GameAnchor.TopLeft -> IntOffset(offsetX, offsetY)
+        is GameAnchor.TopCenter -> IntOffset(((offsetX - width / 2).toInt()), offsetY)
+        is GameAnchor.TopRight -> IntOffset(((offsetX - width).toInt()), offsetY)
+        is GameAnchor.CenterLeft -> IntOffset(offsetX, ((offsetY - height / 2).toInt()))
+        is GameAnchor.Center -> IntOffset(((offsetX - width / 2).toInt()), ((offsetY - height / 2).toInt()))
+        is GameAnchor.CenterRight -> IntOffset(((offsetX - width).toInt()), ((offsetY - height / 2).toInt()))
+        is GameAnchor.BottomLeft -> IntOffset(offsetX, ((offsetY - height).toInt()))
+        is GameAnchor.BottomCenter -> IntOffset(((offsetX - width / 2).toInt()), ((offsetY - height).toInt()))
+        is GameAnchor.BottomRight -> IntOffset(((offsetX - width).toInt()), ((offsetY - height).toInt()))
+        is GameAnchor.Custom -> IntOffset(offsetX - point.x.toInt(), offsetY - point.y.toInt())
     }
 }
+
