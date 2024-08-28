@@ -51,8 +51,6 @@ object AudioManager {
     private val sounds = mutableMapOf<Int, Int>()
     private var soundPool: SoundPool? = null
 
-    private var gameState: GameState? = null
-
     /**
      * Plays background music from a raw resource.
      *
@@ -108,13 +106,9 @@ object AudioManager {
      * Registers sound effects from raw resources with SoundPool.
      *
      * @param context The context used to access resources.
-     * @param gameState Optional: A GameState object containing the game size and game vision. If provided, it will be used to set the screen dimensions and position for 3D sound effects.
      * @param resIds Vararg parameter of resource IDs for the sound effects to be registered.
      */
-    fun registerSounds(context: Context, gameState: GameState? = null, @RawRes vararg resIds: Int) {
-        gameState?.let {
-            this.gameState = gameState
-        }
+    fun registerSounds(context: Context, @RawRes vararg resIds: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             soundPool ?: run {
                 val audioAttributes = AudioAttributes.Builder()
@@ -136,25 +130,15 @@ object AudioManager {
         }
     }
 
-    /**
-     * Registers sound effects from raw resources with SoundPool.
-     * This overloaded function allows you to register sounds without specifying a game state.
-     *
-     * @param context The context used to access resources.
-     * @param resIds Vararg parameter of resource IDs for the sound effects to be registered.
-     */
-    fun registerSounds(context: Context, @RawRes vararg resIds: Int) {
-        registerSounds(context = context, gameState = gameState, resIds = resIds)
-    }
-
 
     /**
      * Plays a registered sound effect.
      *
      * @param resId The resource ID of the sound effect to play.
+     * @param gameState Optional: A GameState object containing the game size and game vision. If provided, it will be used to set the screen dimensions and position for 3D sound effects.
      * @param source Optional: The position of the sound source in the game. If not provided, the sound will be played with equal volume on both channels.
      */
-    fun playSound(@RawRes resId: Int, source: GameVector? = null) {
+    fun playSound(@RawRes resId: Int, gameState: GameState? = null, source: GameVector? = null) {
         CoroutineScope(Dispatchers.IO).launch {
             val soundId = sounds[resId]
 
