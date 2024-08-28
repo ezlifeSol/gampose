@@ -28,7 +28,6 @@ package com.ezlifesol.library.gampose.compose
 import androidx.annotation.Keep
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -104,7 +103,7 @@ fun GameObject(
     onTap: ((Offset) -> Unit)? = null,
     onDoubleTap: ((Offset) -> Unit)? = null,
     onLongPress: ((Offset) -> Unit)? = null,
-    onPress: suspend PressGestureScope.(Offset) -> Unit = {},
+    onPress: ((Offset) -> Unit)? = null,
     onDragging: OnDraggingListener? = null,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
@@ -189,7 +188,9 @@ fun GameObject(
                 onTap = onTap,
                 onDoubleTap = onDoubleTap,
                 onLongPress = onLongPress,
-                onPress = onPress
+                onPress = {
+                    onPress?.invoke(it)
+                }
             )
         }
         .run {
