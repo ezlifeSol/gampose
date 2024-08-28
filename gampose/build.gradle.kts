@@ -60,7 +60,7 @@ afterEvaluate {
             register<MavenPublication>("release") {
                 groupId = "com.ezlifesol.library"
                 artifactId = "gampose"
-                version = "1.4.6"
+                version = "1.4.7-alpha"
 
                 afterEvaluate {
                     from(components["release"])
