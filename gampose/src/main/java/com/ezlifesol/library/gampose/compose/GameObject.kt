@@ -28,6 +28,7 @@ package com.ezlifesol.library.gampose.compose
 import androidx.annotation.Keep
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -103,7 +104,7 @@ fun GameObject(
     onTap: ((Offset) -> Unit)? = null,
     onDoubleTap: ((Offset) -> Unit)? = null,
     onLongPress: ((Offset) -> Unit)? = null,
-    onPress: ((Offset) -> Unit)? = null,
+    onPress: suspend PressGestureScope.(Offset) -> Unit = {},
     onDragging: OnDraggingListener? = null,
     content: @Composable BoxScope.() -> Unit = {}
 ) {
@@ -136,7 +137,7 @@ fun GameObject(
     }
 
     // Apply modifications for size, position, scale, and background color
-    var newModifier = modifier
+    val newModifier = modifier
         .size(size.width.toDp(), size.height.toDp())
         .offset {
             val offsetX = position.x.roundToInt()
@@ -145,75 +146,60 @@ fun GameObject(
         }
         .scale(scale.x, scale.y)
         .background(color)
+        .run {
+            if (onDragging == null) this
+            else pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = { dragAmount ->
+                        onDragging.onDragStart(GameVector(dragAmount.x, dragAmount.y))
+                    },
+                    onDragEnd = {
+                        onDragging.onDragEnd()
+                    },
+                    onDragCancel = {
+                        onDragging.onDragCancel()
+                    },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
 
-    // Handle dragging gestures
-    onDragging?.let {
-        newModifier = newModifier.pointerInput(Unit) {
-            detectDragGestures(
-                onDragStart = { dragAmount ->
-                    onDragging.onDragStart(GameVector(dragAmount.x, dragAmount.y))
-                },
-                onDragEnd = {
-                    onDragging.onDragEnd()
-                },
-                onDragCancel = {
-                    onDragging.onDragCancel()
-                },
-                onDrag = { change, dragAmount ->
-                    change.consume()
+                        // Get the current time
+                        val currentTime = change.uptimeMillis
 
-                    // Get the current time
-                    val currentTime = change.uptimeMillis
+                        // Calculate delta time between drag events
+                        val deltaTime =
+                            (currentTime - lastTime).coerceAtLeast(1) // Prevent division by 0
 
-                    // Calculate delta time between drag events
-                    val deltaTime =
-                        (currentTime - lastTime).coerceAtLeast(1) // Prevent division by 0
+                        // Normalize dragAmount by time
+                        val normalizedDragAmount = GameVector(
+                            dragAmount.x / deltaTime,
+                            dragAmount.y / deltaTime
+                        )
 
-                    // Normalize dragAmount by time
-                    val normalizedDragAmount = GameVector(
-                        dragAmount.x / deltaTime,
-                        dragAmount.y / deltaTime
-                    )
+                        // Update the last event time
+                        lastTime = currentTime
 
-                    // Update the last event time
-                    lastTime = currentTime
-
-                    // Call onDrag with the normalized dragAmount
-                    onDragging.onDrag(change, normalizedDragAmount)
-                },
-            )
+                        // Call onDrag with the normalized dragAmount
+                        onDragging.onDrag(change, normalizedDragAmount)
+                    },
+                )
+            }
         }
-    }
-
-
-    // Handle tap and press gestures
-    if (onTap != null || onDoubleTap != null || onLongPress != null || onPress != null) {
-        newModifier = newModifier.pointerInput(Unit) {
+        .pointerInput(Unit) {
             detectTapGestures(
-                onTap = { offset ->
-                    onTap?.invoke(offset)
-                },
-                onDoubleTap = { offset ->
-                    onDoubleTap?.invoke(offset)
-                },
-                onLongPress = { offset ->
-                    onLongPress?.invoke(offset)
-                },
-                onPress = { offset ->
-                    onPress?.invoke(offset)
-                }
+                onTap = onTap,
+                onDoubleTap = onDoubleTap,
+                onLongPress = onLongPress,
+                onPress = onPress
             )
         }
-    }
-
-    // Handle click events
-    onClick?.let {
-        newModifier = newModifier.clickable(
-            onClick = it,
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        )
-    }
+        .run {
+            if (onClick == null) this
+            else clickable(
+                onClick = onClick,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            )
+        }
 
     // Render the game object with the applied modifications
     Box(modifier = newModifier) {
