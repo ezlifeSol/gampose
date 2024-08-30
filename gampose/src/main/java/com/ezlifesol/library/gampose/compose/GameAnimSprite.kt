@@ -180,28 +180,29 @@ fun GameAnimSprite(
     // Exit if the animation is not set to loop and all frames have been displayed.
     if (!loop && imageStep >= bitmaps.size) return
 
+    // Display the current frame.
+    GameSprite(
+        bitmap = bitmaps[imageStep % bitmaps.size],
+        size = size,
+        modifier = modifier,
+        position = position,
+        anchor = anchor,
+        angle = angle,
+        scale = scale,
+        color = color,
+        collider = collider,
+        otherColliders = otherColliders,
+        onColliding = onColliding,
+        onClick = onClick,
+        onTap = onTap,
+        onDoubleTap = onDoubleTap,
+        onLongPress = onLongPress,
+        onPress = onPress,
+        onDragging = onDragging
+    )
+
     // Check if it's time to advance to the next frame.
     if (gameState.gameTime > nextStep) {
-        // Display the current frame.
-        GameSprite(
-            bitmap = bitmaps[imageStep % bitmaps.size],
-            size = size,
-            modifier = modifier,
-            position = position,
-            anchor = anchor,
-            angle = angle,
-            scale = scale,
-            color = color,
-            collider = collider,
-            otherColliders = otherColliders,
-            onColliding = onColliding,
-            onClick = onClick,
-            onTap = onTap,
-            onDoubleTap = onDoubleTap,
-            onLongPress = onLongPress,
-            onPress = onPress,
-            onDragging = onDragging
-        )
         // Advance to the next frame.
         imageStep += 1
         nextStep = gameState.gameTime + step
