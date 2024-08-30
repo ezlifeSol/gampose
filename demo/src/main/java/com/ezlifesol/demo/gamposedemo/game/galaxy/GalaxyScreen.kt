@@ -544,7 +544,7 @@ fun GalaxyScreen() {
             nextBulletSpawn = gameTime + (bulletSpawnRate / player.bulletStyle.speed)
         }
 
-        gameInput.apply {
+        gameInput?.apply {
             onClick = {
                 if (player.isAlive) {
                     fireBullet()

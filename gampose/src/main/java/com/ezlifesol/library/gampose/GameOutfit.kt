@@ -47,5 +47,5 @@ class GameOutfit {
      * @property background A Color value that represents the background color of the game.
      * The default value is Color.Black, which sets the background to black. This can be customized to any other color to match the game's theme.
      */
-    var background: Color by mutableStateOf(Color.Black)
+    var background: Color by mutableStateOf(Color.Transparent)
 }

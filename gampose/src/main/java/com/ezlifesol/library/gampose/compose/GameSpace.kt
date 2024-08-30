@@ -83,7 +83,7 @@ fun GameSpace(
             override var deltaTime: Float = 0f
             override var gameVision: GameVision = GameVision()
             override var gameOutfit: GameOutfit = GameOutfit()
-            override var gameInput: GameInput = GameInput()
+            override var gameInput: GameInput? = GameInput()
         }
     }
 
@@ -152,7 +152,7 @@ fun GameSpace(
                     isStarted = true
                 }
 
-                gameScope.gameInput.apply {
+                gameScope.gameInput?.apply {
                     GameObject(
                         size = gameSize,
                         onClick = onClick,
@@ -216,7 +216,7 @@ interface GameScope {
     var deltaTime: Float
     var gameVision: GameVision
     var gameOutfit: GameOutfit
-    var gameInput: GameInput
+    var gameInput: GameInput?
 }
 
 /**
