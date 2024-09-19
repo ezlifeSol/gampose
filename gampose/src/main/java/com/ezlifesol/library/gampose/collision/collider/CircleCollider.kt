@@ -52,8 +52,9 @@ class CircleCollider(
 
     // The shape of the collider, initially set to null.
     override var shape: Circle? = null
-    override var size: GameSize? = null
-    override var anchor: GameAnchor? = null
+    override var position: GameVector = GameVector.zero
+    override var size: GameSize = GameSize.zero
+    override var anchor: GameAnchor = GameAnchor.TopLeft
 
     companion object {
         /**
@@ -85,7 +86,10 @@ class CircleCollider(
     override fun update(position: GameVector, size: GameSize, anchor: GameAnchor): Circle? {
         val radius = min(size.width, size.height) / 2f
         val intOffset = anchor.getIntOffset(size.width, size.height, position.x.toInt(), position.y.toInt())
-        shape = Circle(
+        this.position = position
+        this.size = size
+        this.anchor = anchor
+        this.shape = Circle(
             centerX = intOffset.x.toFloat() + radius,
             centerY = intOffset.y.toFloat() + radius,
             radius = radius

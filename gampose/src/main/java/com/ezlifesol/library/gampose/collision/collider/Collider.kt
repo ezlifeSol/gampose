@@ -55,15 +55,20 @@ interface Collider<S> where S : Shape {
     var syncMode: ColliderSyncMode
 
     /**
+     * The position of the collider, represented by GameVector.
+     */
+    var position: GameVector
+
+    /**
      * The size of the collider, represented by GameSize.
      */
-    var size: GameSize?
+    var size: GameSize
 
     /**
      * The anchor point of the collider, represented by GameAnchor.
      * This determines the reference point for positioning the collider.
      */
-    var anchor: GameAnchor?
+    var anchor: GameAnchor
 
     /**
      * The shape of the collider, which defines its geometric representation.

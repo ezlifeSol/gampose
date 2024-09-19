@@ -73,6 +73,7 @@ fun GameSpace(
     modifier: Modifier = Modifier,
     onStart: (@Composable GameScope.() -> Unit) = {},
     onDraw: (DrawScope.() -> Unit) = {},
+    onCanvas: @Composable GameScope.() -> Unit = {},
     onUpdate: @Composable GameScope.() -> Unit,
 ) {
     // Create a GameScope instance to manage and hold game-related data and logic.
@@ -105,11 +106,13 @@ fun GameSpace(
     Box(modifier = modifier
         .background(gameScope.gameOutfit.background) // Apply the background color from GameOutfit.
         .onGloballyPositioned {
-            // Update gameSize when the Box's size changes.
-            gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
-            // Set the initial position of gameVision to the center of the game space.
-            gameScope.gameVision.position = GameVector(gameSize.width / 2f, gameSize.height / 2f)
-            isLoadedScreen = true
+            if (isLoadedScreen.not()) {
+                // Update gameSize when the Box's size changes.
+                gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
+                // Set the initial position of gameVision to the center of the game space.
+                gameScope.gameVision.position = GameVector(gameSize.width / 2f, gameSize.height / 2f)
+                isLoadedScreen = true
+            }
         }) {
         // Main game loop for calculating time and frame rate.
         LaunchedEffect(Unit) {
@@ -184,6 +187,7 @@ fun GameSpace(
                     // Perform custom drawing on the game space using the onDraw lambda.
                     Spacer(modifier.drawBehind(onDraw))
                 }
+                gameScope.onCanvas()
             }
         }
     }

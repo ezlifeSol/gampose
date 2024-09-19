@@ -48,7 +48,7 @@ import kotlin.math.hypot
 object AudioManager {
 
     private var mediaPlayer: MediaPlayer? = null
-    private val sounds = mutableMapOf<Int, Int>()
+    private val sounds = mutableMapOf<Any, Int>()
     private var soundPool: SoundPool? = null
 
     /**
@@ -101,14 +101,13 @@ object AudioManager {
         }
     }
 
-
     /**
-     * Registers sound effects from raw resources with SoundPool.
+     * Registers sound effects with SoundPool.
      *
-     * @param context The context used to access resources.
-     * @param resIds Vararg parameter of resource IDs for the sound effects to be registered.
+     * @param context The context used to access assets.
+     * @param soundSource Can be an Int (resource ID) or a String (path to the audio file in assets).
      */
-    fun registerSounds(context: Context, @RawRes vararg resIds: Int) {
+    fun registerSounds(context: Context, vararg soundSource: Any) {
         CoroutineScope(Dispatchers.IO).launch {
             soundPool ?: run {
                 val audioAttributes = AudioAttributes.Builder()
@@ -123,60 +122,65 @@ object AudioManager {
             }
 
             soundPool?.let { soundPool ->
-                resIds.forEach { resId ->
-                    sounds[resId] = soundPool.load(context, resId, 1)
+                soundSource.forEach { soundSource ->
+                    when (soundSource) {
+                        is Int -> sounds[soundSource] = soundPool.load(context, soundSource, 1)
+                        is String -> context.assets.openFd(soundSource).use { afd ->
+                            sounds[soundSource] = soundPool.load(afd, 1)
+                        }
+                    }
                 }
             }
         }
     }
 
-
     /**
      * Plays a registered sound effect.
      *
-     * @param resId The resource ID of the sound effect to play.
+     * @param soundSource Can be an Int (resource ID) or a String (path to the audio file in assets).
      * @param gameState Optional: A GameState object containing the game size and game vision. If provided, it will be used to set the screen dimensions and position for 3D sound effects.
      * @param source Optional: The position of the sound source in the game. If not provided, the sound will be played with equal volume on both channels.
      */
-    fun playSound(@RawRes resId: Int, gameState: GameState? = null, source: GameVector? = null) {
+    fun playSound(soundSource: Any, gameState: GameState? = null, source: GameVector? = null) {
         CoroutineScope(Dispatchers.IO).launch {
-            val soundId = sounds[resId]
+            val soundId = when (soundSource) {
+                is Int -> sounds[soundSource] // Load sound by resource ID
+                is String -> sounds[soundSource] // Load sound from assets path
+                else -> null
+            }
 
             soundPool?.let { soundPool ->
                 soundId?.let {
-                    val (leftVolume, rightVolume) = source?.let { src ->
-                        gameState?.let { state ->
-                            val screenCenter = state.gameVision.position
-                            val screenWidth = state.gameSize.width
-
-                            // Calculate the distance and angle between the screen center and the source
-                            val deltaX = src.x - screenCenter.x
-                            val deltaY = src.y - screenCenter.y
-
-                            // Calculate the angle from the screen center to the sound source
-                            val angle = atan2(deltaY, deltaX)
-
-                            // Adjust volume based on angle and distance
-                            val distance = hypot(deltaX.toDouble(), deltaY.toDouble()).toFloat()
-
-                            // Set maxDistance to the screen width times 1.5
-                            val maxDistance = screenWidth * 1.5f
-
-                            // Calculate the volume, assuming it decreases as the distance increases
-                            val volume = (1 - distance / maxDistance).coerceIn(0f, 1f)
-
-                            // Calculate the volume for the left and right channels based on the angle
-                            val leftVol = volume * (1 - Math.sin(angle.toDouble()).toFloat()) / 2
-                            val rightVol = volume * (1 + Math.sin(angle.toDouble()).toFloat()) / 2
-
-                            leftVol to rightVol
-                        } ?: (1f to 1f) // If gameState is not provided, play the sound with equal volume on both channels
-                    } ?: (1f to 1f) // If no source is provided, play the sound with equal volume on both channels
-
+                    val (leftVolume, rightVolume) = calculateVolume(gameState, source)
                     soundPool.play(it, leftVolume, rightVolume, 1, 0, 1f)
-                } ?: debugLog("Sound not found: $resId")
+                } ?: debugLog("Sound not found: $soundSource")
             }
         }
+    }
+
+    /**
+     * Calculates the left and right volume based on the gameState and sound source position.
+     */
+    private fun calculateVolume(gameState: GameState?, source: GameVector?): Pair<Float, Float> {
+        return source?.let { src ->
+            gameState?.let { state ->
+                val screenCenter = state.gameVision.position
+                val screenWidth = state.gameSize.width
+
+                val deltaX = src.x - screenCenter.x
+                val deltaY = src.y - screenCenter.y
+                val angle = atan2(deltaY, deltaX)
+
+                val distance = hypot(deltaX.toDouble(), deltaY.toDouble()).toFloat()
+                val maxDistance = screenWidth * 1.5f
+                val volume = (1 - distance / maxDistance).coerceIn(0f, 1f)
+
+                val leftVol = volume * (1 - Math.sin(angle.toDouble()).toFloat()) / 2
+                val rightVol = volume * (1 + Math.sin(angle.toDouble()).toFloat()) / 2
+
+                leftVol to rightVol
+            } ?: (1f to 1f) // If gameState is not provided, play the sound with equal volume on both channels
+        } ?: (1f to 1f) // If no source is provided, play the sound with equal volume on both channels
     }
 
 

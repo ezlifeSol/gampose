@@ -27,7 +27,6 @@ package com.ezlifesol.library.gampose.log
 
 import android.util.Log
 import androidx.annotation.Keep
-import com.ezlifesol.library.gampose.BuildConfig
 
 /**
  * Logs a debug message if the application is in debug mode.
@@ -40,9 +39,6 @@ import com.ezlifesol.library.gampose.BuildConfig
  */
 @Keep
 fun debugLog(message: String) {
-    // Check if the application is in debug mode.
-    if (BuildConfig.DEBUG) {
-        // Log the message with the tag "Gampose log".
-        Log.d("Gampose log", message)
-    }
+    // Log the message with the tag "Gampose log".
+    Log.d("Gampose log", message)
 }

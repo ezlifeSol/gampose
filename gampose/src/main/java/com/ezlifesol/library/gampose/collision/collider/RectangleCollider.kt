@@ -51,8 +51,9 @@ class RectangleCollider(
 
     // The shape of the collider, initially set to null.
     override var shape: Rectangle? = null
-    override var size: GameSize? = null
-    override var anchor: GameAnchor? = null
+    override var position: GameVector = GameVector.zero
+    override var size: GameSize = GameSize.zero
+    override var anchor: GameAnchor = GameAnchor.TopLeft
 
     companion object {
         /**
@@ -84,8 +85,10 @@ class RectangleCollider(
      */
     override fun update(position: GameVector, size: GameSize, anchor: GameAnchor): Rectangle? {
         val intOffset = anchor.getIntOffset(size.width, size.height, position.x.toInt(), position.y.toInt())
-
-        shape = Rectangle(
+        this.position = position
+        this.size = size
+        this.anchor = anchor
+        this.shape = Rectangle(
             left = intOffset.x.toFloat(),
             top = intOffset.y.toFloat(),
             right = intOffset.x.toFloat() + size.width,

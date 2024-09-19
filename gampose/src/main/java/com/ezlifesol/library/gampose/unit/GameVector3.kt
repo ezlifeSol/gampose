@@ -123,4 +123,11 @@ open class GameVector3(x: Float, y: Float, var z: Float) : GameVector(x, y) {
      * @return A new GameVector3 instance representing the result of the division.
      */
     operator fun div(other: GameVector3) = GameVector3(x / other.x, y / other.y, z / other.z)
+
+    /**
+     * Multiplies both components of the GameVector by a scalar value.
+     * @param amount A float value to multiply with both x and y components.
+     * @return A new GameVector instance representing the result of the multiplication.
+     */
+    override operator fun times(amount: Float) = GameVector3(x * amount, y * amount, z * amount)
 }

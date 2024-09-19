@@ -199,7 +199,7 @@ open class GameVector(
      * @param amount A float value to multiply with both x and y components.
      * @return A new GameVector instance representing the result of the multiplication.
      */
-    operator fun times(amount: Float) = GameVector(x * amount, y * amount)
+    open operator fun times(amount: Float) = GameVector(x * amount, y * amount)
 
     /**
      * Divides both components of the GameVector by a scalar value.
