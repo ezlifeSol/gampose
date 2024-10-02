@@ -26,12 +26,12 @@
 package com.ezlifesol.library.gampose.collision.collider
 
 import androidx.annotation.Keep
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import com.ezlifesol.library.gampose.collision.shape.Circle
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.compose.getIntOffset
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
 import kotlin.math.min
 
 /**
@@ -52,9 +52,9 @@ class CircleCollider(
 
     // The shape of the collider, initially set to null.
     override var shape: Circle? = null
-    override var position: GameVector = GameVector.zero
-    override var size: GameSize = GameSize.zero
-    override var anchor: GameAnchor = GameAnchor.TopLeft
+    override var position: Offset = Offset.Zero
+    override var size: Size = Size.Zero
+    override var anchor: Anchor = Anchor.TopLeft
 
     companion object {
         /**
@@ -83,7 +83,7 @@ class CircleCollider(
      * @param anchor The new anchor point of the collider.
      * @return The updated Circle shape of the collider.
      */
-    override fun update(position: GameVector, size: GameSize, anchor: GameAnchor): Circle? {
+    override fun update(position: Offset, size: Size, anchor: Anchor): Circle? {
         val radius = min(size.width, size.height) / 2f
         val intOffset = anchor.getIntOffset(size.width, size.height, position.x.toInt(), position.y.toInt())
         this.position = position

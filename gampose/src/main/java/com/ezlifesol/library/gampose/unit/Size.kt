@@ -26,35 +26,26 @@
 package com.ezlifesol.library.gampose.unit
 
 import androidx.annotation.Keep
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 
 /**
- * GameScale is a data class representing a 2-dimensional scale factor with x and y components.
+ * Calculates the area of a given size (width * height).
  *
- * Main features:
- * - Contains x and y scale factors.
- * - Provides predefined scale factors for common use cases.
- *   - `default`: Represents a scale factor of 1 for both x and y axes (no scaling).
- *   - `reverseX`: Represents a scale factor of -1 for the x axis and 1 for the y axis (horizontal flip).
- *   - `reverseY`: Represents a scale factor of 1 for the x axis and -1 for the y axis (vertical flip).
- *   - `reverseAll`: Represents a scale factor of -1 for both x and y axes (180-degree rotation).
+ * @return The area of the size as a Float.
+ */
+fun Size.area() = width * height
+
+/**
+ * Converts a Float value representing pixels to Dp (density-independent pixels).
+ *
+ * @return The corresponding Dp value based on the current device's density.
  */
 @Keep
-data class GameScale(
-    val x: Float,
-    val y: Float
-) {
-
-    companion object {
-        // Default scale factor with no scaling.
-        val default = GameScale(1f, 1f)
-
-        // Scale factor for flipping horizontally.
-        val reverseX = GameScale(-1f, 1f)
-
-        // Scale factor for flipping vertically.
-        val reverseY = GameScale(1f, -1f)
-
-        // Scale factor for flipping both horizontally and vertically.
-        val reverseAll = GameScale(-1f, -1f)
-    }
+@Composable
+fun Float.toDp(): Dp {
+    val density = LocalDensity.current.density
+    return Dp(this / density)
 }

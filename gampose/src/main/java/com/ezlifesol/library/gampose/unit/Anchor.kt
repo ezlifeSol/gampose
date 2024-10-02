@@ -20,45 +20,45 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package com.ezlifesol.library.gampose.unit
 
 import androidx.annotation.Keep
+import androidx.compose.ui.geometry.Offset
 
 /**
- * GameAnchor is a sealed class representing different anchor points for alignment.
- * These anchor points can be used to specify how elements should be positioned relative to their container or reference point.
+ * Anchor is a sealed class representing different anchor points for alignment in a game layout.
+ * These anchor points can be used to specify how elements are positioned relative to their parent container or reference point.
  *
- * Sealed classes:
+ * Sealed subclasses:
  * - TopLeft: Aligns to the top-left corner.
- * - TopCenter: Aligns to the top center.
+ * - TopCenter: Aligns to the top-center point.
  * - TopRight: Aligns to the top-right corner.
- * - CenterLeft: Aligns to the center left.
- * - Center: Aligns to the center.
- * - CenterRight: Aligns to the center right.
+ * - CenterLeft: Aligns to the center-left side.
+ * - Center: Aligns to the center point.
+ * - CenterRight: Aligns to the center-right side.
  * - BottomLeft: Aligns to the bottom-left corner.
- * - BottomCenter: Aligns to the bottom center.
+ * - BottomCenter: Aligns to the bottom-center point.
  * - BottomRight: Aligns to the bottom-right corner.
- * - Custom: Allows for custom anchor points, specified by a [GameVector].
+ * - Custom: Allows for custom anchor points, which can be specified using a [Offset].
  */
 @Keep
-sealed class GameAnchor {
-    data object TopLeft : GameAnchor()
-    data object TopCenter : GameAnchor()
-    data object TopRight : GameAnchor()
-    data object CenterLeft : GameAnchor()
-    data object Center : GameAnchor()
-    data object CenterRight : GameAnchor()
-    data object BottomLeft : GameAnchor()
-    data object BottomCenter : GameAnchor()
-    data object BottomRight : GameAnchor()
+sealed class Anchor {
+    data object TopLeft : Anchor()     // Anchor at the top-left corner
+    data object TopCenter : Anchor()   // Anchor at the top-center point
+    data object TopRight : Anchor()    // Anchor at the top-right corner
+    data object CenterLeft : Anchor()  // Anchor at the center-left side
+    data object Center : Anchor()      // Anchor at the center point
+    data object CenterRight : Anchor() // Anchor at the center-right side
+    data object BottomLeft : Anchor()  // Anchor at the bottom-left corner
+    data object BottomCenter : Anchor()// Anchor at the bottom-center point
+    data object BottomRight : Anchor() // Anchor at the bottom-right corner
 
     /**
      * Custom anchor point defined by the user.
      *
-     * @property point The custom anchor point represented by a [GameVector].
+     * @property point The custom anchor point, specified by an [Offset].
      */
-    data class Custom(val point: GameVector) : GameAnchor()
+    data class Custom(val point: Offset) : Anchor()  // Allows user-defined custom anchor points
 }

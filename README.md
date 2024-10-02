@@ -118,7 +118,7 @@ Add the following to your `build.gradle` or `build.gradle.kts` file:
 
 ```gradle
 dependencies {
-    implementation 'com.github.ezlifeSol:gampose:1.4.9'
+    implementation 'com.github.ezlifeSol:gampose:1.5.0'
 }
 ```
 
@@ -126,7 +126,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-  implementation("com.github.ezlifeSol:gampose:1.4.9")
+  implementation("com.github.ezlifeSol:gampose:1.5.0")
 }
 ```
 
@@ -136,9 +136,9 @@ dependencies {
 
 ```kotlin
 GameObject(
-    size = GameSize(100f, 100f),
-    position = GameVector(50f, 50f),
-    anchor = GameAnchor.TopLeft,
+  size = Size(100f, 100f),
+  position = Offset(50f, 50f),
+  anchor = Anchor.TopLeft,
     color = Color.Blue,
     onClick = { /* Handle click */ },
     onDragging = detectDragging(
@@ -154,10 +154,10 @@ GameObject(
 // Using drawable resource
 GameSprite(
     resourceId = R.drawable.example_sprite,
-    size = GameSize(100f, 100f),
-    position = GameVector(50f, 50f),
-    anchor = GameAnchor.TopLeft,
-    scale = GameScale(1f, 1f),
+  size = Size(100f, 100f),
+  position = Offset(50f, 50f),
+  anchor = Anchor.TopLeft,
+  scale = Offset.Default,
     angle = 0f,
     onClick = { /* Handle click */ }
 )
@@ -165,10 +165,10 @@ GameSprite(
 // Using asset path
 GameSprite(
     assetPath = "images/example_sprite.png",
-    size = GameSize(100f, 100f),
-    position = GameVector(50f, 50f),
-    anchor = GameAnchor.TopLeft,
-    scale = GameScale(1f, 1f),
+  size = Size(100f, 100f),
+  position = Offset(50f, 50f),
+  anchor = Anchor.TopLeft,
+  scale = Offset.Default,
     angle = 0f,
     onClick = { /* Handle click */ }
 )
@@ -176,10 +176,10 @@ GameSprite(
 // Using bitmap
 GameSprite(
     bitmap = myBitmap,
-    size = GameSize(100f, 100f),
-    position = GameVector(50f, 50f),
-    anchor = GameAnchor.TopLeft,
-    scale = GameScale(1f, 1f),
+  size = Size(100f, 100f),
+  position = Offset(50f, 50f),
+  anchor = Anchor.TopLeft,
+  scale = Offset.Default,
     angle = 0f,
     onClick = { /* Handle click */ }
 )
@@ -194,9 +194,9 @@ GameAnimSprite(
     col = 4,
     row = 4,
     step = 0.1f,
-    size = GameSize(100f, 100f),
-    position = GameVector(50f, 50f),
-    anchor = GameAnchor.TopLeft,
+  size = Size(100f, 100f),
+  position = Offset(50f, 50f),
+  anchor = Anchor.TopLeft,
     loop = true,
     onClick = { /* Handle click */ }
 )
@@ -205,9 +205,9 @@ GameAnimSprite(
 GameAnimSprite(
     bitmaps = listOf(bitmapFrame1, bitmapFrame2, bitmapFrame3),
     step = 0.1f,
-    size = GameSize(100f, 100f),
-    position = GameVector(50f, 50f),
-    anchor = GameAnchor.TopLeft,
+  size = Size(100f, 100f),
+  position = Offset(50f, 50f),
+  anchor = Anchor.TopLeft,
     loop = true,
     onClick = { /* Handle click */ }
 )
@@ -221,10 +221,10 @@ GameSpace(
 ) {
     // Dino properties
     val dinoSprite = "dino/dino_jump.webp"
-    val dinoSize = GameSize(200f, 200f)
-    val dinoAnchor = GameAnchor.BottomLeft
+  val dinoSize = Size(200f, 200f)
+  val dinoAnchor = Anchor.BottomLeft
     val dinoPosition by remember {
-        mutableStateOf(GameVector(300f, gameSize.height))
+      mutableStateOf(Offset(300f, Size.height))
     }
     // Draw dino sprite
     GameSprite(
@@ -242,9 +242,9 @@ GameSpace(
 
 ```kotlin
 Joystick(
-    position = GameVector(100f, 100f),
-    size = GameSize(400f, 400f),
-    stickSize = GameSize(200f, 200f),
+  position = Offset(100f, 100f),
+  size = Size(400f, 400f),
+  stickSize = Size(200f, 200f),
     onDragging = { direction -> /* Handle joystick direction */ }
 )
 ```

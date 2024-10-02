@@ -31,9 +31,9 @@ import android.media.MediaPlayer
 import android.media.SoundPool
 import androidx.annotation.Keep
 import androidx.annotation.RawRes
+import androidx.compose.ui.geometry.Offset
 import com.ezlifesol.library.gampose.compose.GameState
 import com.ezlifesol.library.gampose.log.debugLog
-import com.ezlifesol.library.gampose.unit.GameVector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -141,7 +141,7 @@ object AudioManager {
      * @param gameState Optional: A GameState object containing the game size and game vision. If provided, it will be used to set the screen dimensions and position for 3D sound effects.
      * @param source Optional: The position of the sound source in the game. If not provided, the sound will be played with equal volume on both channels.
      */
-    fun playSound(soundSource: Any, gameState: GameState? = null, source: GameVector? = null) {
+    fun playSound(soundSource: Any, gameState: GameState? = null, source: Offset? = null) {
         CoroutineScope(Dispatchers.IO).launch {
             val soundId = when (soundSource) {
                 is Int -> sounds[soundSource] // Load sound by resource ID
@@ -161,7 +161,7 @@ object AudioManager {
     /**
      * Calculates the left and right volume based on the gameState and sound source position.
      */
-    private fun calculateVolume(gameState: GameState?, source: GameVector?): Pair<Float, Float> {
+    private fun calculateVolume(gameState: GameState?, source: Offset?): Pair<Float, Float> {
         return source?.let { src ->
             gameState?.let { state ->
                 val screenCenter = state.gameVision.position

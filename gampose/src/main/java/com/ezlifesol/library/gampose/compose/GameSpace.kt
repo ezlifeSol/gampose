@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright 2024 ezlifeSol
+ * Copyright (c) 2024 ezlifeSol
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 package com.ezlifesol.library.gampose.compose
@@ -44,6 +43,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -52,20 +53,19 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.ezlifesol.library.gampose.GameInput
 import com.ezlifesol.library.gampose.GameOutfit
 import com.ezlifesol.library.gampose.GameVision
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
 import kotlin.math.roundToInt
 
 val LocalGameState = staticCompositionLocalOf { GameState() }
 
 /**
- * GameSpace is a Composable function that sets up a game environment with a game loop and rendering logic.
- * It manages the game's visual presentation and logic updates within a Composable context.
+ * GameSpace is a composable function that sets up a game environment with a game loop and rendering logic.
+ * It manages the game's visual presentation and logic updates within a composable context.
  *
  * @param modifier Modifier to apply to the Box container, which can be used to customize its layout and appearance.
- * @param onStart A Composable lambda function that is invoked when the game starts. It is used for initializing game state.
+ * @param onStart A composable lambda function that is invoked when the game starts. It is used for initializing game state.
  * @param onDraw A lambda function that specifies custom drawing operations to be applied to the GameSpace.
- * @param onUpdate A Composable lambda function called every frame to update game logic and state.
+ * @param onNonVisionUpdate A composable lambda function that is called every frame to update game logic that doesn't involve vision updates.
+ * @param onUpdate A composable lambda function called every frame to update game logic and state.
  */
 @Keep
 @Composable
@@ -73,14 +73,14 @@ fun GameSpace(
     modifier: Modifier = Modifier,
     onStart: (@Composable GameScope.() -> Unit) = {},
     onDraw: (DrawScope.() -> Unit) = {},
-    onCanvas: @Composable GameScope.() -> Unit = {},
+    onNonVisionUpdate: @Composable GameScope.() -> Unit = {},
     onUpdate: @Composable GameScope.() -> Unit,
 ) {
     // Create a GameScope instance to manage and hold game-related data and logic.
     val gameScope = remember {
         object : GameScope {
             override var gameTime: Float = 0f
-            override var gameSize: GameSize = GameSize(0f, 0f)
+            override var gameSize: Size = Size(0f, 0f)
             override var deltaTime: Float = 0f
             override var gameVision: GameVision = GameVision()
             override var gameOutfit: GameOutfit = GameOutfit()
@@ -95,7 +95,7 @@ fun GameSpace(
     var deltaMillisTime by remember { mutableLongStateOf(0L) }
     var gameTime by remember { mutableLongStateOf(0L) }
     var gameFrame by remember { mutableIntStateOf(0) }
-    var gameSize by remember { mutableStateOf(GameSize(0f, 0f)) }
+    var gameSize by remember { mutableStateOf(Size(0f, 0f)) }
     var isStarted by remember { mutableStateOf(false) }
     var isLoadedScreen by remember { mutableStateOf(false) }
 
@@ -106,11 +106,11 @@ fun GameSpace(
     Box(modifier = modifier
         .background(gameScope.gameOutfit.background) // Apply the background color from GameOutfit.
         .onGloballyPositioned {
-            if (isLoadedScreen.not()) {
-                // Update gameSize when the Box's size changes.
-                gameSize = GameSize(it.size.width.toFloat(), it.size.height.toFloat())
+            if (!isLoadedScreen) {
+                // Update Size when the Box's size changes.
+                gameSize = Size(it.size.width.toFloat(), it.size.height.toFloat())
                 // Set the initial position of gameVision to the center of the game space.
-                gameScope.gameVision.position = GameVector(gameSize.width / 2f, gameSize.height / 2f)
+                gameScope.gameVision.position = Offset(gameSize.width / 2f, gameSize.height / 2f)
                 isLoadedScreen = true
             }
         }) {
@@ -187,7 +187,7 @@ fun GameSpace(
                     // Perform custom drawing on the game space using the onDraw lambda.
                     Spacer(modifier.drawBehind(onDraw))
                 }
-                gameScope.onCanvas()
+                gameScope.onNonVisionUpdate()
             }
         }
     }
@@ -216,7 +216,7 @@ fun GameSpace(
  */
 interface GameScope {
     var gameTime: Float
-    var gameSize: GameSize
+    var gameSize: Size
     var deltaTime: Float
     var gameVision: GameVision
     var gameOutfit: GameOutfit
@@ -234,7 +234,7 @@ interface GameScope {
  */
 data class GameState(
     var gameTime: Float = 0f,
-    var gameSize: GameSize = GameSize.zero,
+    var gameSize: Size = Size.Zero,
     var deltaTime: Float = 0f,
     var gameVision: GameVision = GameVision(),
     var gameOutfit: GameOutfit = GameOutfit(),

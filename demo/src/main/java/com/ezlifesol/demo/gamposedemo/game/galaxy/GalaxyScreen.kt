@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -51,9 +53,9 @@ import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.input.detectDragging
 import com.ezlifesol.library.gampose.media.audio.AudioManager
 import com.ezlifesol.library.gampose.media.image.ImageManager
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
+import com.ezlifesol.library.gampose.unit.calculateAngle
+import com.ezlifesol.library.gampose.unit.nearest
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.cos
@@ -80,7 +82,7 @@ fun GalaxyScreen() {
         val collider = CircleCollider.create("Player")
         mutableStateOf(
             Player(
-                position = GameVector.zero, collider = collider
+                position = Offset.Zero, collider = collider
             )
         )
     }
@@ -120,8 +122,8 @@ fun GalaxyScreen() {
 //    val enemyBullets = remember { mutableStateListOf<Bullet>() }
 
     GameSpace(modifier = Modifier.fillMaxSize()) {
-        if (player.position == GameVector.zero) {
-            player.position = GameVector(gameSize.width / 2, gameSize.height - 400f)
+        if (player.position == Offset.Zero) {
+            player.position = Offset(gameSize.width / 2, gameSize.height - 400f)
         }
 
         gameOutfit.background = Color(0f, 0f, 0.2f)
@@ -166,7 +168,7 @@ fun GalaxyScreen() {
                 }
 
                 "Shield Point" -> {
-                    val size = GameSize(125f, 100f)
+                    val size = Size(125f, 100f)
                     GameAnimSprite(
                         bitmaps = shieldSprites,
                         step = shieldEffectRate,
@@ -227,7 +229,7 @@ fun GalaxyScreen() {
         if (gameTime > nextEnemySpawn) {
             val randomX = Random.nextInt(gameSize.width.toInt()).toFloat()
             val randomY = -abs(Random.nextInt(500).toFloat()) - 200f
-            val enemyPosition = GameVector(randomX, randomY)
+            val enemyPosition = Offset(randomX, randomY)
             val enemyCollider = CircleCollider.create(name = "Enemy")
             val enemyHealth = level
             enemies.add(Enemy(enemyHealth, enemyPosition, enemyCollider))
@@ -257,11 +259,11 @@ fun GalaxyScreen() {
                         AudioManager.playSound(R.raw.enemy_exp)
                     }
                 }),
-                anchor = GameAnchor.Center
+                anchor = Anchor.Center
             )
             if (player.isShield) {
                 shield.position =
-                    GameVector(player.position.x, player.position.y + player.size.height * 0.25f)
+                    Offset(player.position.x, player.position.y + player.size.height * 0.25f)
                 shield.collider ?: kotlin.run {
                     shield.collider = CircleCollider.create("Shield")
                 }
@@ -285,9 +287,9 @@ fun GalaxyScreen() {
         bullets.forEach { bullet ->
             if (bullet.isMine) {
                 if (bullet.style == BulletStyle.Missile && enemies.isNotEmpty()) {
-                    val follow = GameVector.nearest(bullet.position, enemies.map { it.position })
+                    val follow = Offset.nearest(bullet.position, enemies.map { it.position })
                     follow?.let {
-                        val newRotate = GameVector.calculateAngle(bullet.position, follow).toFloat()
+                        val newRotate = Offset.calculateAngle(bullet.position, follow).toFloat()
                         if (bullet.rotate > newRotate) {
                             bullet.rotate -= 3
                         } else {
@@ -329,7 +331,7 @@ fun GalaxyScreen() {
                             checkEnemyDestroy(enemy)
                         }
                         AudioManager.playSound(R.raw.enemy_hit)
-                        bullet.position.y = -1000f
+                        bullet.position = bullet.position.copy(y = -1000f)
                     }
                 })
             } else {
@@ -340,14 +342,16 @@ fun GalaxyScreen() {
                             player.isAlive = false
                             player.collider = null
 
-                            bullet.position.y = gameSize.height + bullet.style.size.height
+                            bullet.position =
+                                bullet.position.copy(y = gameSize.height + bullet.style.size.height)
 
                             AudioManager.playSound(R.raw.enemy_exp)
                         }
 
                         shield.collider?.name -> {
                             if (player.isShield.not()) return@detectColliding
-                            bullet.position.y = gameSize.height + bullet.style.size.height
+                            bullet.position =
+                                bullet.position.copy(y = gameSize.height + bullet.style.size.height)
                             AudioManager.playSound(R.raw.enemy_hit)
                         }
                     }
@@ -402,7 +406,7 @@ fun GalaxyScreen() {
                     position = enemy.position,
                     collider = enemy.collider,
                     otherColliders = shield.collider?.let { arrayOf(it) },
-                    anchor = GameAnchor.Center,
+                    anchor = Anchor.Center,
                     onColliding = detectColliding(onCollidingStart = { other ->
                         if (other.name == "Shield") {
                             player.isShield = false
@@ -525,7 +529,7 @@ fun GalaxyScreen() {
             }
 
             bulletConfigs.forEach { config ->
-                val bulletPosition = GameVector(
+                val bulletPosition = Offset(
                     player.position.x + config.xOffset,
                     player.position.y + config.yOffset
                 )
@@ -574,7 +578,7 @@ fun GalaxyScreen() {
         if (player.isAlive && missileLevel > 0) {
             if (gameTime > nextMissileSpawn) {
                 missileBulletConfigs.take(missileLevel).forEach { config ->
-                    val bulletPosition = GameVector(
+                    val bulletPosition = Offset(
                         player.position.x + config.xOffset,
                         player.position.y + config.yOffset
                     )
@@ -627,7 +631,7 @@ fun GalaxyScreen() {
                                 player.apply {
                                     isAlive = true
                                     position =
-                                        GameVector(gameSize.width / 2, gameSize.height - 400f)
+                                        Offset(gameSize.width / 2, gameSize.height - 400f)
                                     collider = CircleCollider.create("Player")
                                 }
                             },

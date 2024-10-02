@@ -26,10 +26,10 @@
 package com.ezlifesol.library.gampose.collision.collider
 
 import androidx.annotation.Keep
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import com.ezlifesol.library.gampose.collision.shape.Shape
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
 
 /**
  * Collider is an interface for objects that can have collision detection capabilities.
@@ -41,7 +41,7 @@ import com.ezlifesol.library.gampose.unit.GameVector
  * @param S The type of shape used by the collider. Must be a subtype of Shape.
  */
 @Keep
-interface Collider<S> where S : Shape {
+interface Collider<S> where S : Any {
 
     /**
      * The name of the collider, used for identification or debugging purposes.
@@ -55,20 +55,20 @@ interface Collider<S> where S : Shape {
     var syncMode: ColliderSyncMode
 
     /**
-     * The position of the collider, represented by GameVector.
+     * The position of the collider, represented by Offset.
      */
-    var position: GameVector
+    var position: Offset
 
     /**
-     * The size of the collider, represented by GameSize.
+     * The size of the collider, represented by Size.
      */
-    var size: GameSize
+    var size: Size
 
     /**
-     * The anchor point of the collider, represented by GameAnchor.
+     * The anchor point of the collider, represented by Anchor.
      * This determines the reference point for positioning the collider.
      */
-    var anchor: GameAnchor
+    var anchor: Anchor
 
     /**
      * The shape of the collider, which defines its geometric representation.
@@ -79,12 +79,12 @@ interface Collider<S> where S : Shape {
     /**
      * Updates the shape of the collider based on the given position, size, and anchor.
      *
-     * @param position The new position of the collider, represented by GameVector.
-     * @param size The new size of the collider, represented by GameSize.
-     * @param anchor The new anchor point of the collider, represented by GameAnchor.
+     * @param position The new position of the collider, represented by Offset.
+     * @param size The new size of the collider, represented by Size.
+     * @param anchor The new anchor point of the collider, represented by Anchor.
      * @return The updated shape of the collider, or null if the shape cannot be updated.
      */
-    fun update(position: GameVector, size: GameSize, anchor: GameAnchor): S?
+    fun update(position: Offset, size: Size, anchor: Anchor): S?
 
     /**
      * Checks if this collider overlaps with another collider.

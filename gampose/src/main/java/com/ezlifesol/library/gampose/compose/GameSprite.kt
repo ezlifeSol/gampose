@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -41,10 +42,8 @@ import com.ezlifesol.library.gampose.collision.collider.Collider
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.input.OnDraggingListener
 import com.ezlifesol.library.gampose.media.image.ImageManager
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameScale
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
+import com.ezlifesol.library.gampose.unit.Default
 import com.ezlifesol.library.gampose.unit.toDp
 
 /**
@@ -72,11 +71,11 @@ import com.ezlifesol.library.gampose.unit.toDp
 @Composable
 fun GameSprite(
     @DrawableRes resourceId: Int,
-    size: GameSize,
+    size: Size,
     modifier: Modifier = Modifier,
-    position: GameVector = GameVector.zero,
-    anchor: GameAnchor = GameAnchor.TopLeft,
-    scale: GameScale = GameScale.default,
+    position: Offset = Offset.Zero,
+    anchor: Anchor = Anchor.TopLeft,
+    scale: Offset = Offset.Default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
     collider: Collider<out Shape>? = null,
@@ -142,11 +141,11 @@ fun GameSprite(
 @Composable
 fun GameSprite(
     assetPath: String,
-    size: GameSize,
+    size: Size,
     modifier: Modifier = Modifier,
-    position: GameVector = GameVector.zero,
-    anchor: GameAnchor = GameAnchor.TopLeft,
-    scale: GameScale = GameScale.default,
+    position: Offset = Offset.Zero,
+    anchor: Anchor = Anchor.TopLeft,
+    scale: Offset = Offset.Default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
     collider: Collider<out Shape>? = null,
@@ -210,11 +209,11 @@ fun GameSprite(
 @Composable
 fun GameSprite(
     bitmap: ImageBitmap,
-    size: GameSize,
+    size: Size,
     modifier: Modifier = Modifier,
-    position: GameVector = GameVector.zero,
-    anchor: GameAnchor = GameAnchor.TopLeft,
-    scale: GameScale = GameScale.default,
+    position: Offset = Offset.Zero,
+    anchor: Anchor = Anchor.TopLeft,
+    scale: Offset = Offset.Default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
     collider: Collider<out Shape>? = null,

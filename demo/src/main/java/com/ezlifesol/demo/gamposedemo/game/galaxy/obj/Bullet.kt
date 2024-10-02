@@ -1,16 +1,16 @@
 package com.ezlifesol.demo.gamposedemo.game.galaxy.obj
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import com.ezlifesol.library.gampose.collision.collider.Collider
 import com.ezlifesol.library.gampose.collision.shape.Shape
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
 
 data class Bullet(
-    var position: GameVector,
+    var position: Offset,
     var collider: Collider<out Shape>
 ) {
-    val anchor = GameAnchor.Center
+    val anchor = Anchor.Center
     var angle = 0f
     var rotate = 0f
     var damage = 1
@@ -25,16 +25,16 @@ data class BulletConfig(
     var style: BulletStyle
 )
 
-enum class BulletStyle(val id: Int, val sprite: String, val speed: Float, val size: GameSize) {
-    Spread(id = 1, sprite = "galaxy/bullet_spread.webp", speed = 1.5f, size = GameSize(28f, 68f)),
-    Straight(id = 2, sprite = "galaxy/bullet_straight.webp", speed = 2f, size = GameSize(16f, 80f)),
-    Bean(id = 3, sprite = "galaxy/bullet_bean.webp", speed = 2.5f, size = GameSize(28f, 24f)),
-    Missile(id = 4, sprite = "galaxy/bullet_missile.webp", speed = 1f, size = GameSize(36f, 56f)),
+enum class BulletStyle(val id: Int, val sprite: String, val speed: Float, val size: Size) {
+    Spread(id = 1, sprite = "galaxy/bullet_spread.webp", speed = 1.5f, size = Size(28f, 68f)),
+    Straight(id = 2, sprite = "galaxy/bullet_straight.webp", speed = 2f, size = Size(16f, 80f)),
+    Bean(id = 3, sprite = "galaxy/bullet_bean.webp", speed = 2.5f, size = Size(28f, 24f)),
+    Missile(id = 4, sprite = "galaxy/bullet_missile.webp", speed = 1f, size = Size(36f, 56f)),
     NinjaStar(
         id = 5,
         sprite = "galaxy/bullet_ninja_star.webp",
         speed = 1f,
-        size = GameSize(52f, 52f)
+        size = Size(52f, 52f)
     );
 
     companion object {

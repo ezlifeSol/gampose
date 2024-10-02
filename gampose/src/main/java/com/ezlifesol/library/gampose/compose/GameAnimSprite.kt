@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -42,10 +43,8 @@ import com.ezlifesol.library.gampose.collision.collider.Collider
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.input.OnDraggingListener
 import com.ezlifesol.library.gampose.media.image.ImageManager
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameScale
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
+import com.ezlifesol.library.gampose.unit.Default
 
 /**
  * Creates an animated sprite from a sprite sheet asset.
@@ -79,11 +78,11 @@ fun GameAnimSprite(
     col: Int,
     row: Int,
     step: Float,
-    size: GameSize,
+    size: Size,
     loop: Boolean = true,
-    position: GameVector = GameVector.zero,
-    anchor: GameAnchor = GameAnchor.TopLeft,
-    scale: GameScale = GameScale.default,
+    position: Offset = Offset.Zero,
+    anchor: Anchor = Anchor.TopLeft,
+    scale: Offset = Offset.Default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
     collider: Collider<out Shape>? = null,
@@ -154,11 +153,11 @@ fun GameAnimSprite(
     modifier: Modifier = Modifier,
     bitmaps: List<ImageBitmap>,
     step: Float,
-    size: GameSize,
+    size: Size,
     loop: Boolean = true,
-    position: GameVector = GameVector.zero,
-    anchor: GameAnchor = GameAnchor.TopLeft,
-    scale: GameScale = GameScale.default,
+    position: Offset = Offset.Zero,
+    anchor: Anchor = Anchor.TopLeft,
+    scale: Offset = Offset.Default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
     collider: Collider<out Shape>? = null,

@@ -1,15 +1,15 @@
 package com.ezlifesol.demo.gamposedemo.game.galaxy.obj
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import com.ezlifesol.library.gampose.collision.collider.Collider
 import com.ezlifesol.library.gampose.collision.shape.Shape
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
 
 data class Shield(
-    var position: GameVector,
+    var position: Offset,
     var collider: Collider<out Shape>? = null
 ) {
-    val size = GameSize(300f, 300f)
-    val anchor = GameAnchor.Center
+    val size = Size(300f, 300f)
+    val anchor = Anchor.Center
 }

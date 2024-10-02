@@ -13,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import com.ezlifesol.demo.gamposedemo.R
 import com.ezlifesol.library.gampose.collision.collider.CircleCollider
@@ -22,9 +24,7 @@ import com.ezlifesol.library.gampose.compose.GameObject
 import com.ezlifesol.library.gampose.compose.GameSpace
 import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.media.audio.AudioManager
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
 import kotlin.math.roundToInt
 
 // Constants for game mechanics
@@ -119,16 +119,16 @@ fun DinoScreen() {
                 "dino/ground3.webp"
             )
         }
-        val groundSize = GameSize(1200f, 90f)
-        val groundAnchor = GameAnchor.BottomLeft
+        val groundSize = Size(1200f, 90f)
+        val groundAnchor = Anchor.BottomLeft
         val groundX = remember {
             mutableStateListOf(0f, 1200f, 2400f)
         }
         val groundPositions = remember {
             mutableStateListOf(
-                GameVector(gameSize.width, gameSize.height),
-                GameVector(gameSize.width, gameSize.height),
-                GameVector(gameSize.width, gameSize.height)
+                Offset(gameSize.width, gameSize.height),
+                Offset(gameSize.width, gameSize.height),
+                Offset(gameSize.width, gameSize.height)
             )
         }
 
@@ -140,7 +140,7 @@ fun DinoScreen() {
                 position = groundPositions[index],
                 anchor = groundAnchor
             )
-            groundPositions[index] = GameVector(gameSize.width - groundX[index], gameSize.height)
+            groundPositions[index] = Offset(gameSize.width - groundX[index], gameSize.height)
 
             if (isAlive) {
                 groundX[index] += deltaTime * cactusSpeed * 2
@@ -151,10 +151,10 @@ fun DinoScreen() {
         }
 
         // Dino properties
-        val dinoSize = GameSize(200f, 200f)
-        val dinoAnchor = GameAnchor.BottomLeft
+        val dinoSize = Size(200f, 200f)
+        val dinoAnchor = Anchor.BottomLeft
         var dinoPosition by remember {
-            mutableStateOf(GameVector(300f, gameSize.height))
+            mutableStateOf(Offset(300f, gameSize.height))
         }
         val dinoCollider by remember {
             mutableStateOf(
@@ -165,14 +165,14 @@ fun DinoScreen() {
         }
 
         // Update dino position and collider
-        dinoPosition = GameVector(dinoPosition.x, dinoPosition.y + (jumpMovement * deltaTime))
+        dinoPosition = Offset(dinoPosition.x, dinoPosition.y + (jumpMovement * deltaTime))
 
         // Cactus properties
         val cactusSprite = "dino/cactus.webp"
-        val cactusSize = GameSize(115f, 200f)
-        val cactusAnchor = GameAnchor.BottomLeft
+        val cactusSize = Size(115f, 200f)
+        val cactusAnchor = Anchor.BottomLeft
         var cactusPosition by remember {
-            mutableStateOf(GameVector(gameSize.width, gameSize.height))
+            mutableStateOf(Offset(gameSize.width, gameSize.height))
         }
         val cactusCollider by remember {
             mutableStateOf(
@@ -183,7 +183,8 @@ fun DinoScreen() {
         }
 
         // Update cactus position and collider
-        cactusPosition = GameVector(gameSize.width - cactusX, gameSize.height - (groundSize.height * 0.3f))
+        cactusPosition =
+            Offset(gameSize.width - cactusX, gameSize.height - (groundSize.height * 0.3f))
 
         // Apply gravity to jump movement
         jumpMovement += deltaTime * gravity
@@ -211,7 +212,7 @@ fun DinoScreen() {
 
         // Reset dino position when it lands
         if (dinoPosition.y >= gameSize.height - (groundSize.height * 0.3f)) {
-            dinoPosition.y = gameSize.height - (groundSize.height * 0.3f)
+            dinoPosition = dinoPosition.copy(y = gameSize.height - (groundSize.height * 0.3f))
             jumpMovement = 0f
             isJumped = false
         } else {
@@ -261,9 +262,9 @@ fun DinoScreen() {
         if (isAlive.not()) {
             GameSprite(
                 assetPath = "dino/replay.webp",
-                size = GameSize(180f, 160f),
-                anchor = GameAnchor.Center,
-                position = GameVector(gameSize.width / 2, gameSize.height / 2),
+                size = Size(180f, 160f),
+                anchor = Anchor.Center,
+                position = Offset(gameSize.width / 2, gameSize.height / 2),
                 onClick = {
                     isAlive = true
                     isJumped = true

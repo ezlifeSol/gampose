@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
@@ -54,10 +55,8 @@ import com.ezlifesol.library.gampose.collision.collider.Collider
 import com.ezlifesol.library.gampose.collision.collider.ColliderSyncMode
 import com.ezlifesol.library.gampose.collision.shape.Shape
 import com.ezlifesol.library.gampose.input.OnDraggingListener
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameScale
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
+import com.ezlifesol.library.gampose.unit.Default
 import com.ezlifesol.library.gampose.unit.toDp
 import kotlin.math.roundToInt
 
@@ -90,10 +89,10 @@ import kotlin.math.roundToInt
 @Composable
 fun GameObject(
     modifier: Modifier = Modifier,
-    size: GameSize,
-    position: GameVector = GameVector.zero,
-    anchor: GameAnchor = GameAnchor.TopLeft,
-    scale: GameScale = GameScale.default,
+    size: Size,
+    position: Offset = Offset.Zero,
+    anchor: Anchor = Anchor.TopLeft,
+    scale: Offset = Offset.Default,
     angle: Float = 0f,
     color: Color = Color.Transparent,
     collider: Collider<out Shape>? = null,
@@ -150,7 +149,7 @@ fun GameObject(
             else pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { dragAmount ->
-                        onDragging.onDragStart(GameVector(dragAmount.x, dragAmount.y))
+                        onDragging.onDragStart(Offset(dragAmount.x, dragAmount.y))
                     },
                     onDragEnd = {
                         onDragging.onDragEnd()
@@ -169,7 +168,7 @@ fun GameObject(
                             (currentTime - lastTime).coerceAtLeast(1) // Prevent division by 0
 
                         // Normalize dragAmount by time
-                        val normalizedDragAmount = GameVector(
+                        val normalizedDragAmount = Offset(
                             dragAmount.x / deltaTime,
                             dragAmount.y / deltaTime
                         )
@@ -225,20 +224,36 @@ fun GameObject(
  * the object's width and height, with the anchor point being a corner of the object relative to the current position.
  *
  * - For custom anchor points (`Custom`), the `IntOffset` value is calculated based on the custom x and y coordinates
- * specified by the `GameVector` object.
+ * specified by the `Offset` object.
  */
-fun GameAnchor.getIntOffset(width: Float, height: Float, offsetX: Int, offsetY: Int): IntOffset {
+fun Anchor.getIntOffset(width: Float, height: Float, offsetX: Int, offsetY: Int): IntOffset {
     return when (this) {
-        is GameAnchor.TopLeft -> IntOffset(offsetX, offsetY)
-        is GameAnchor.TopCenter -> IntOffset(((offsetX - width / 2).toInt()), offsetY)
-        is GameAnchor.TopRight -> IntOffset(((offsetX - width).toInt()), offsetY)
-        is GameAnchor.CenterLeft -> IntOffset(offsetX, ((offsetY - height / 2).toInt()))
-        is GameAnchor.Center -> IntOffset(((offsetX - width / 2).toInt()), ((offsetY - height / 2).toInt()))
-        is GameAnchor.CenterRight -> IntOffset(((offsetX - width).toInt()), ((offsetY - height / 2).toInt()))
-        is GameAnchor.BottomLeft -> IntOffset(offsetX, ((offsetY - height).toInt()))
-        is GameAnchor.BottomCenter -> IntOffset(((offsetX - width / 2).toInt()), ((offsetY - height).toInt()))
-        is GameAnchor.BottomRight -> IntOffset(((offsetX - width).toInt()), ((offsetY - height).toInt()))
-        is GameAnchor.Custom -> IntOffset(offsetX - point.x.toInt(), offsetY - point.y.toInt())
+        is Anchor.TopLeft -> IntOffset(offsetX, offsetY)
+        is Anchor.TopCenter -> IntOffset(((offsetX - width / 2).toInt()), offsetY)
+        is Anchor.TopRight -> IntOffset(((offsetX - width).toInt()), offsetY)
+        is Anchor.CenterLeft -> IntOffset(offsetX, ((offsetY - height / 2).toInt()))
+        is Anchor.Center -> IntOffset(
+            ((offsetX - width / 2).toInt()),
+            ((offsetY - height / 2).toInt())
+        )
+
+        is Anchor.CenterRight -> IntOffset(
+            ((offsetX - width).toInt()),
+            ((offsetY - height / 2).toInt())
+        )
+
+        is Anchor.BottomLeft -> IntOffset(offsetX, ((offsetY - height).toInt()))
+        is Anchor.BottomCenter -> IntOffset(
+            ((offsetX - width / 2).toInt()),
+            ((offsetY - height).toInt())
+        )
+
+        is Anchor.BottomRight -> IntOffset(
+            ((offsetX - width).toInt()),
+            ((offsetY - height).toInt())
+        )
+
+        is Anchor.Custom -> IntOffset(offsetX - point.x.toInt(), offsetY - point.y.toInt())
     }
 }
 

@@ -26,8 +26,8 @@
 package com.ezlifesol.library.gampose.input
 
 import androidx.annotation.Keep
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
-import com.ezlifesol.library.gampose.unit.GameVector
 
 /**
  * OnDraggingListener defines methods to handle drag events.
@@ -42,7 +42,7 @@ interface OnDraggingListener {
      *
      * @param dragAmount The amount of drag movement from the start point.
      */
-    fun onDragStart(dragAmount: GameVector)
+    fun onDragStart(dragAmount: Offset)
 
     /**
      * Called when a drag operation ends.
@@ -60,7 +60,7 @@ interface OnDraggingListener {
      * @param change The pointer input change information.
      * @param dragAmount The amount of drag movement from the start point.
      */
-    fun onDrag(change: PointerInputChange, dragAmount: GameVector)
+    fun onDrag(change: PointerInputChange, dragAmount: Offset)
 }
 
 /**
@@ -74,13 +74,13 @@ interface OnDraggingListener {
  */
 @Keep
 fun detectDragging(
-    onDragStart: (dragAmount: GameVector) -> Unit = { },
+    onDragStart: (dragAmount: Offset) -> Unit = { },
     onDragEnd: () -> Unit = { },
     onDragCancel: () -> Unit = { },
-    onDrag: (change: PointerInputChange, dragAmount: GameVector) -> Unit = { _, _ -> }
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit = { _, _ -> }
 ): OnDraggingListener {
     return object : OnDraggingListener {
-        override fun onDragStart(dragAmount: GameVector) {
+        override fun onDragStart(dragAmount: Offset) {
             onDragStart.invoke(dragAmount)
         }
 
@@ -92,7 +92,7 @@ fun detectDragging(
             onDragCancel.invoke()
         }
 
-        override fun onDrag(change: PointerInputChange, dragAmount: GameVector) {
+        override fun onDrag(change: PointerInputChange, dragAmount: Offset) {
             onDrag.invoke(change, dragAmount)
         }
     }

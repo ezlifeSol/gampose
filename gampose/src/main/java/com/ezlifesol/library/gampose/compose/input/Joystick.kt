@@ -39,15 +39,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.painterResource
 import com.ezlifesol.library.gampose.R
 import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.compose.LocalGameState
 import com.ezlifesol.library.gampose.compose.getIntOffset
 import com.ezlifesol.library.gampose.input.detectDragging
-import com.ezlifesol.library.gampose.unit.GameAnchor
-import com.ezlifesol.library.gampose.unit.GameSize
-import com.ezlifesol.library.gampose.unit.GameVector
+import com.ezlifesol.library.gampose.unit.Anchor
 import com.ezlifesol.library.gampose.unit.toDp
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -70,22 +70,22 @@ import kotlin.math.sqrt
 @Composable
 fun Joystick(
     modifier: Modifier = Modifier,
-    position: GameVector = GameVector.zero,
+    position: Offset = Offset.Zero,
     @DrawableRes sprite: Int = R.drawable.ic_joystick_base,
-    size: GameSize = GameSize(400f, 400f),
+    size: Size = Size(400f, 400f),
     @DrawableRes stickSprite: Int = R.drawable.ic_joystick_stick,
-    stickSize: GameSize = GameSize(200f, 200f),
-    anchor: GameAnchor = GameAnchor.TopLeft,
-    onDragging: (GameVector) -> Unit = {}
+    stickSize: Size = Size(200f, 200f),
+    anchor: Anchor = Anchor.TopLeft,
+    onDragging: (Offset) -> Unit = {}
 ) {
     Box(modifier = modifier) {
         // Calculate the initial position of the stick and finger
         val intOffset = anchor.getIntOffset(size.width, size.height, position.x.roundToInt(), position.y.roundToInt())
         var stickPosition by remember {
-            mutableStateOf(GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2)))
+            mutableStateOf(Offset(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2)))
         }
         var fingerPosition by remember {
-            mutableStateOf(GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2)))
+            mutableStateOf(Offset(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2)))
         }
 
         var isDragging by remember {
@@ -110,7 +110,7 @@ fun Joystick(
             position = position,
             anchor = anchor,
             onPress = {
-                fingerPosition = GameVector(it.x, it.y)
+                fingerPosition = Offset(it.x, it.y)
                 stickPosition = fingerPosition
                 normalizedX = (stickPosition.x - centerX) / radius
                 normalizedY = (stickPosition.y - centerY) / radius
@@ -119,8 +119,10 @@ fun Joystick(
             },
             onTap = {
                 // Reset the stick position and notify of zero movement
-                stickPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
-                fingerPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
+                stickPosition =
+                    Offset(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
+                fingerPosition =
+                    Offset(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
                 normalizedX = 0f
                 normalizedY = 0f
                 isDragging = false
@@ -132,12 +134,15 @@ fun Joystick(
                     val newFingerY = fingerPosition.y + dragAmount.y * gameState.deltaTime * 1000
                     val distance = sqrt((newFingerX - centerX).pow(2) + (newFingerY - centerY).pow(2))
 
-                    fingerPosition = GameVector(newFingerX, newFingerY)
+                    fingerPosition = Offset(newFingerX, newFingerY)
 
                     // Constrain the stick within the radius of the base
                     if (distance > radius) {
                         val ratio = radius / distance
-                        stickPosition = GameVector(centerX + (newFingerX - centerX) * ratio, centerY + (newFingerY - centerY) * ratio)
+                        stickPosition = Offset(
+                            centerX + (newFingerX - centerX) * ratio,
+                            centerY + (newFingerY - centerY) * ratio
+                        )
                     } else {
                         stickPosition = fingerPosition
                     }
@@ -150,8 +155,10 @@ fun Joystick(
                 },
                 onDragEnd = {
                     // Reset the stick position and notify of zero movement
-                    stickPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
-                    fingerPosition = GameVector(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
+                    stickPosition =
+                        Offset(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
+                    fingerPosition =
+                        Offset(intOffset.x + (size.width / 2), intOffset.y + (size.height / 2))
                     normalizedX = 0f
                     normalizedY = 0f
                     isDragging = false
@@ -167,14 +174,14 @@ fun Joystick(
                 .offset {
                     val offsetX = stickPosition.x.roundToInt()
                     val offsetY = stickPosition.y.roundToInt()
-                    GameAnchor.Center.getIntOffset(stickSize.width, stickSize.height, offsetX, offsetY)
+                    Anchor.Center.getIntOffset(stickSize.width, stickSize.height, offsetX, offsetY)
                 }
         )
 
         if (isDragging) {
-            onDragging(GameVector(normalizedX, normalizedY))
+            onDragging(Offset(normalizedX, normalizedY))
         } else {
-            onDragging(GameVector.zero)
+            onDragging(Offset.Zero)
         }
     }
 }
