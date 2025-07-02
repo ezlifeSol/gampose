@@ -34,7 +34,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,6 +47,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import com.ezlifesol.library.gampose.collision.OnCollidingListener
@@ -58,7 +58,6 @@ import com.ezlifesol.library.gampose.input.OnDraggingListener
 import com.ezlifesol.library.gampose.unit.Anchor
 import com.ezlifesol.library.gampose.unit.Default
 import com.ezlifesol.library.gampose.unit.toDp
-import kotlin.math.roundToInt
 
 /**
  * GameObject is a Composable function that represents a game object with various properties.
@@ -134,13 +133,17 @@ fun GameObject(
         }
     }
 
+    // Tính anchor offset
+    val anchorOffset = remember(size, anchor) {
+        anchor.getAnchorOffset(size.width, size.height)
+    }
+
     // Apply modifications for size, position, scale, and background color
     val newModifier = modifier
         .size(size.width.toDp(), size.height.toDp())
-        .offset {
-            val offsetX = position.x.roundToInt()
-            val offsetY = position.y.roundToInt()
-            anchor.getIntOffset(size.width, size.height, offsetX, offsetY)
+        .graphicsLayer {
+            translationX = position.x - anchorOffset.x
+            translationY = position.y - anchorOffset.y
         }
         .scale(scale.x, scale.y)
         .background(color)
@@ -209,6 +212,19 @@ fun GameObject(
                 .rotate(angle), content = content
         )
     }
+}
+
+fun Anchor.getAnchorOffset(width: Float, height: Float): Offset = when (this) {
+    is Anchor.TopLeft -> Offset(0f, 0f)
+    is Anchor.TopCenter -> Offset(width / 2f, 0f)
+    is Anchor.TopRight -> Offset(width, 0f)
+    is Anchor.CenterLeft -> Offset(0f, height / 2f)
+    is Anchor.Center -> Offset(width / 2f, height / 2f)
+    is Anchor.CenterRight -> Offset(width, height / 2f)
+    is Anchor.BottomLeft -> Offset(0f, height)
+    is Anchor.BottomCenter -> Offset(width / 2f, height)
+    is Anchor.BottomRight -> Offset(width, height)
+    is Anchor.Custom -> point
 }
 
 /**

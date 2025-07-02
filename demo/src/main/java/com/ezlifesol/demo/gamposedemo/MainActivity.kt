@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.ezlifesol.demo.gamposedemo.game.DinoScreen
 import com.ezlifesol.demo.gamposedemo.game.galaxy.GalaxyScreen
 import com.ezlifesol.library.gampose.media.audio.AudioManager
 
@@ -20,9 +21,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-//        AudioManager.registerSounds(this, R.raw.dino_die, R.raw.dino_jump, R.raw.dino_point)
-        AudioManager.playMusic(this, R.raw.music, loop = true, volume = 0.5f)
-        AudioManager.registerSounds(this, R.raw.player_shot, R.raw.enemy_hit, R.raw.enemy_exp)
+        AudioManager.registerSounds(this, R.raw.dino_die, R.raw.dino_jump, R.raw.dino_point)
+//        AudioManager.playMusic(this, R.raw.music, loop = true, volume = 0.5f)
+//        AudioManager.registerSounds(this, R.raw.player_shot, R.raw.enemy_hit, R.raw.enemy_exp)
 
         val viewModel by viewModels<MainViewModel>()
         setContent {
@@ -32,10 +33,10 @@ class MainActivity : ComponentActivity() {
                 controller.hide(WindowInsetsCompat.Type.systemBars())
                 controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
-//            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-//            DinoScreen()
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-            GalaxyScreen()
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            DinoScreen()
+//            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+//            GalaxyScreen()
         }
     }
 

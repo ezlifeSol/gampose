@@ -30,6 +30,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import com.ezlifesol.library.gampose.collision.shape.Circle
 import com.ezlifesol.library.gampose.collision.shape.Shape
+import com.ezlifesol.library.gampose.compose.getAnchorOffset
 import com.ezlifesol.library.gampose.compose.getIntOffset
 import com.ezlifesol.library.gampose.unit.Anchor
 import kotlin.math.min

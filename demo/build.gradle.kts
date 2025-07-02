@@ -1,16 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.ezlifesol.demo.gamposedemo"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.ezlifesol.demo.gamposedemo"
         minSdk = 26
-        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 

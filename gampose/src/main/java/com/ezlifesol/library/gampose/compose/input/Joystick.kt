@@ -30,7 +30,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,10 +40,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import com.ezlifesol.library.gampose.R
 import com.ezlifesol.library.gampose.compose.GameSprite
 import com.ezlifesol.library.gampose.compose.LocalGameState
+import com.ezlifesol.library.gampose.compose.getAnchorOffset
 import com.ezlifesol.library.gampose.compose.getIntOffset
 import com.ezlifesol.library.gampose.input.detectDragging
 import com.ezlifesol.library.gampose.unit.Anchor
@@ -166,15 +167,18 @@ fun Joystick(
             )
         )
 
+        val anchorOffset = remember(size, anchor) {
+            Anchor.Center.getAnchorOffset(stickSize.width, stickSize.height)
+        }
+
         Image(
             painter = painterResource(id = stickSprite),
             contentDescription = null,
             modifier = Modifier
                 .size(stickSize.width.toDp(), stickSize.height.toDp())
-                .offset {
-                    val offsetX = stickPosition.x.roundToInt()
-                    val offsetY = stickPosition.y.roundToInt()
-                    Anchor.Center.getIntOffset(stickSize.width, stickSize.height, offsetX, offsetY)
+                .graphicsLayer {
+                    translationX = stickPosition.x - anchorOffset.x
+                    translationY = stickPosition.y - anchorOffset.y
                 }
         )
 

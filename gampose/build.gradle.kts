@@ -1,12 +1,13 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
     id("maven-publish")
 }
 
 android {
     namespace = "com.ezlifesol.library.gampose"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
@@ -60,7 +61,7 @@ afterEvaluate {
             register<MavenPublication>("release") {
                 groupId = "com.ezlifesol.library"
                 artifactId = "gampose"
-                version = "1.5.0"
+                version = "1.5.1"
 
                 afterEvaluate {
                     from(components["release"])

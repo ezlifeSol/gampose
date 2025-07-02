@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -103,17 +104,19 @@ fun GameSpace(
     var isActive by remember { mutableStateOf(true) }
 
     // Main container for the game space, including layout and size updates.
-    Box(modifier = modifier
-        .background(gameScope.gameOutfit.background) // Apply the background color from GameOutfit.
-        .onGloballyPositioned {
-            if (!isLoadedScreen) {
-                // Update Size when the Box's size changes.
-                gameSize = Size(it.size.width.toFloat(), it.size.height.toFloat())
-                // Set the initial position of gameVision to the center of the game space.
-                gameScope.gameVision.position = Offset(gameSize.width / 2f, gameSize.height / 2f)
-                isLoadedScreen = true
-            }
-        }) {
+    Box(
+        modifier = modifier
+            .background(gameScope.gameOutfit.background) // Apply the background color from GameOutfit.
+            .onGloballyPositioned {
+                if (!isLoadedScreen) {
+                    // Update Size when the Box's size changes.
+                    gameSize = Size(it.size.width.toFloat(), it.size.height.toFloat())
+                    // Set the initial position of gameVision to the center of the game space.
+                    gameScope.gameVision.position =
+                        Offset(gameSize.width / 2f, gameSize.height / 2f)
+                    isLoadedScreen = true
+                }
+            }) {
         // Main game loop for calculating time and frame rate.
         LaunchedEffect(Unit) {
             while (true) {
@@ -167,20 +170,21 @@ fun GameSpace(
                     )
                 }
 
+                val anchorOffset = remember(gameSize, gameScope.gameVision.anchor) {
+                    gameScope.gameVision.anchor.getAnchorOffset(gameSize.width, gameSize.height)
+                }
+
                 Box(
-                    modifier = Modifier.offset {
-                        gameScope.run {
-                            // Calculate the offset for the game space based on gameVision position and anchor.
-                            val offsetX = (gameSize.width - gameVision.position.x).roundToInt()
-                            val offsetY = (gameSize.height - gameVision.position.y).roundToInt()
-                            gameVision.anchor.getIntOffset(
-                                gameSize.width,
-                                gameSize.height,
-                                offsetX,
-                                offsetY
-                            )
+                    modifier = Modifier
+                        .graphicsLayer {
+                            gameScope.run {
+                                // Calculate the offset for the game space based on gameVision position and anchor.
+                                val offsetX = gameSize.width - gameVision.position.x
+                                val offsetY = gameSize.height - gameVision.position.y
+                                translationX = offsetX - anchorOffset.x
+                                translationY = offsetY - anchorOffset.y
+                            }
                         }
-                    }
                 ) {
                     // Call the onUpdate lambda to update game logic each frame.
                     gameScope.onUpdate()
